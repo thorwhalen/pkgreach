@@ -2,9 +2,9 @@
 
 Every platform writes the same tables, with a ``platform`` column, so adding a
 platform never changes the schema. The CSV machinery (year partitions,
-idempotent merges, the ``MutableMapping`` store) is ghtraffic's
-(:mod:`ghtraffic.tables`): the history of a package's downloads has the same
-shape, and the same merge problem, as the history of a repo's views.
+idempotent merges, the ``MutableMapping`` store) is ``csvledger``, shared with
+ghtraffic: the history of a package's downloads has the same shape, and the
+same merge problem, as the history of a repo's views.
 
 - ``downloads``: daily counts, merged by **max** per ``(date, platform,
   package, series)``. Registries recompute recent days, and windows overlap
@@ -21,14 +21,13 @@ shape, and the same merge problem, as the history of a repo's views.
 
 from __future__ import annotations
 
-# The one import of ghtraffic: every other module goes through here, so moving the
-# store to its own package (thorwhalen/ghtraffic#7) changes this line only.
-from ghtraffic.tables import (
+# The one import of the store (csvledger): every other module goes through here.
+from csvledger import (
     Files,
     TableSpec,
     dump_csv,
-    parse_csv,
     merge_rows,
+    parse_csv,
     read_table,
     table_files,
     write_rows,

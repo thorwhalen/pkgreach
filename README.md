@@ -92,7 +92,7 @@ build_site(Files("data"), Files("site"))
 
 The history is plain CSV, one table per kind, split by year (`downloads/YYYY.csv`, `metrics.csv`, `packages.csv`, `runs.csv`), merged idempotently so re-running a collection never changes the result. `manifest.json` lists every file and its columns. Design and alternatives: [docs/adr/0001-seams-and-scope.md](docs/adr/0001-seams-and-scope.md). What each platform offers, verified: [docs/research/platform-apis.md](docs/research/platform-apis.md).
 
-**GitHub traffic** (views, clones, referrers) is private and needs a token with push access. That is [ghtraffic](https://github.com/thorwhalen/ghtraffic)'s job, in a private repository; pkgreach reuses its storage layer.
+**GitHub traffic** (views, clones, referrers) is private and needs a token with push access. That is [ghtraffic](https://github.com/thorwhalen/ghtraffic)'s job, in a private repository; both keep their history with [csvledger](https://github.com/thorwhalen/csvledger).
 
 Dependents data is from [ecosyste.ms](https://ecosyste.ms), licensed [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); the report credits it and the history carries a `DATA-LICENSE.md`. A repository that stops being listed (made private, deleted, or dropped from the selection) leaves the current tables at the next run; what was committed before stays in the branch's git history.
 

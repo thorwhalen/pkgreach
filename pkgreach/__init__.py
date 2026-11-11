@@ -20,7 +20,7 @@ Seams (each one keyword argument, with a working default):
   ``MutableMapping[str, str]``: a folder by default).
 """
 
-from ghtraffic.tables import Files
+from pkgreach.tables import Files
 
 from pkgreach.analyze import summarize
 from pkgreach.collect import RunReport, collect, select_packages, write_manifest
