@@ -493,7 +493,10 @@ def test_build_site_render_seam_default_view_and_last_run(tmp_path):
 
     out2 = Files(tmp_path / "site2")
     build_site(store, out2, render=render, title="T")
-    assert out2["other.html"] == "<p>2</p>" and seen == {"title": "T", "view": "overview"}
+    assert out2["other.html"] == "<p>2</p>" and seen == {
+        "title": "T",
+        "view": "overview",
+    }
 
 
 def test_cli_default_view(tmp_path):
@@ -511,3 +514,52 @@ def test_cli_default_view(tmp_path):
     args = ["report", "--data-dir", str(tmp_path / "data"), "--out", str(site)]
     assert main([*args, "--default-view", "all"]) == 0
     assert 'data-default="all"' in (site / "index.html").read_text()
+
+
+def test_page_renders_an_older_summary_and_hostile_metric_names():
+    """A summary from before units and median growth still renders; metric
+    names and platform names are escaped and encoded too."""
+    from pkgreach import render_page
+
+    s = _summary()
+    for p in s["platforms"].values():
+        for k in ("unit", "growth_30d", "median_growth_30d", "signal_x_floor"):
+            p.pop(k, None)
+    for r in s["packages"]:
+        for k in ("prev_covered", "prev_low_base", "growth_vs_median_30d"):
+            r.pop(k, None)
+    assert "<html" in render_page(s)
+
+    s = _summary()
+    code = s["platforms"].pop("code")
+    code["headline"] = ["stars", "<img src=x onerror=alert(1)>"]
+    s["platforms"]["c&d"] = code
+    for r in s["packages"]:
+        if r["platform"] == "code":
+            r["platform"] = "c&d"
+    page = render_page(s)
+    assert "<img src=x" not in page
+    assert 'href="#tab=c%26d"' in page and 'data-tab="c&amp;d"' in page
+
+
+def test_default_view_of_an_absent_known_platform_falls_back():
+    from pkgreach import render_page
+
+    with pytest.warns(UserWarning, match="no npm packages"):
+        page = render_page(_summary(), default_view="npm")
+    assert 'data-default="overview"' in page
+
+
+def test_render_seam_gets_only_the_options_it_names(tmp_path):
+    store = Files(tmp_path / "data")
+    collect(
+        _settings(),
+        store=store,
+        platforms={"fake": FakeRegistry({"a": 5}).platform()},
+        http=None,
+        dependents=_no_deps,
+        now=_now(),
+    )
+    out = Files(tmp_path / "site")
+    build_site(store, out, render=lambda summary: f"<p>{len(summary['packages'])}</p>")
+    assert out["index.html"] == "<p>1</p>"

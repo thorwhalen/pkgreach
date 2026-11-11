@@ -156,11 +156,20 @@ def _ends(packages, daily) -> dict[str, date]:
     return ends
 
 
-def _covers(history_from: str, end: date, n: int) -> bool:
-    """Whether a history starting on ``history_from`` covers the ``n`` days to
+def _followed_from(info: Mapping, days: Mapping[str, int]) -> str:
+    """The first day a package's counts can be trusted to cover: the later of
+    the source's first day (``history_from``) and the package's creation, or,
+    when the registry gives no creation date, its first day with downloads
+    (``""``: unknown)."""
+    born = str(info.get("created") or "")[:10] or (min(days) if days else "")
+    return max(str(info.get("history_from") or ""), born)
+
+
+def _covers(start_day: str, end: date, n: int) -> bool:
+    """Whether a history starting on ``start_day`` covers the ``n`` days to
     ``end`` (unknown start: assumed covered, as the stored days are all we have)."""
     start = (end - timedelta(days=n - 1)).isoformat()
-    return not history_from or str(history_from) <= start
+    return not start_day or start_day <= start
 
 
 def _median_growth(rows: list[Mapping]) -> float | None:
@@ -226,7 +235,7 @@ def summarize(
             "last_seen": info.get("last_seen", ""),
             "downloads": {f"{n}d": _window(days, end, n) for n in WINDOWS},
             "downloads_prev_30d": _window(days, end - timedelta(days=30), 30),
-            "prev_covered": _covers(info.get("history_from", ""), end, 60),
+            "prev_covered": _covers(_followed_from(info, days), end, 60),
             "downloads_collected": sum(days.values()),
             "has_downloads": bool(days or info.get("history_from")),
             "weekly": _weekly(days, end, SPARK_WEEKS) if days else [],
@@ -266,10 +275,11 @@ def summarize(
                 if g is not None and med is not None and med > -1
                 else None
             )
-        total, total_prev = (
-            sum(r["downloads"]["30d"] for r in mine),
-            sum(r["downloads_prev_30d"] for r in mine),
-        )
+        total = sum(r["downloads"]["30d"] for r in mine)
+        # growth over the packages followed through both windows only
+        covered = [r for r in mine if r["prev_covered"]]
+        cur_c = sum(r["downloads"]["30d"] for r in covered)
+        prev_c = sum(r["downloads_prev_30d"] for r in covered)
         by_platform[platform] = {
             "title": p.title or platform,
             "kind": p.kind,
@@ -277,8 +287,8 @@ def summarize(
             "unit": p.unit,
             "packages": len(mine),
             "downloads_30d": total,
-            "downloads_prev_30d": total_prev,
-            "growth_30d": round(total / total_prev - 1, 3) if total_prev else None,
+            "downloads_prev_30d": sum(r["downloads_prev_30d"] for r in mine),
+            "growth_30d": round(cur_c / prev_c - 1, 3) if prev_c else None,
             "median_growth_30d": med,
             "noise_floor_30d": floor if with_dl else None,
             "signal_x_floor": signal_x_floor,

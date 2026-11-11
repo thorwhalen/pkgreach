@@ -34,7 +34,7 @@ What the platforms offer, verified live on 2026-11-11, is in [docs/research/plat
 
 The transport (`http=`) is also injectable, for tests and caches; credentials reach it as `make_http(headers_by_host=)`, never from inside a platform.
 
-`NOT seams:` the CSV layout (ghtraffic's), the default page's CSS and views (knobs of `render_page`, not pluggable parts), CLI parsing, the noise-floor quantile (a keyword argument of `summarize`, not a pluggable strategy).
+`NOT seams:` the CSV layout (csvledger's), the default page's CSS and views (knobs of `render_page`, not pluggable parts), CLI parsing, the noise-floor quantile (a keyword argument of `summarize`, not a pluggable strategy).
 
 **Surfaces:** `pkgreach/tools.py` holds the operations as plain functions, JSON-able in and out (`collect`, `report`, `init`), and is the single source for every surface. Built: the CLI (`cw.dispatch` over `tools.COMMANDS`) and a composite GitHub Action. Not built: MCP (it would reference `pkgreach.tools:collect` etc. with no core change), HTTP, an agent skill. The author's own workflow is generated from the same template as `pkgreach init`'s (a test keeps them identical).
 

@@ -19,12 +19,11 @@ over each package's metadata, for selections a TOML file cannot express.
 from __future__ import annotations
 
 import os
+import tomllib
 from collections.abc import Mapping
 from dataclasses import dataclass, field, fields
 from pathlib import Path
 from typing import Any
-
-import tomllib
 
 DFLT_CONFIG_FILENAME = "pkgreach.toml"
 DFLT_DATA_DIR = (

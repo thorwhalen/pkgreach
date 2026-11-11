@@ -10,6 +10,7 @@ from __future__ import annotations
 import html
 from collections.abc import Mapping
 from typing import Any
+from urllib.parse import quote
 
 
 def e(s: Any) -> str:
@@ -80,8 +81,22 @@ def units(n: int, unit: str) -> str:
 
 
 def label(metric: str) -> str:
-    """How a metric name reads: ``open_issues`` -> ``open issues``."""
-    return metric.replace("_", " ")
+    """How a metric name reads, escaped: ``open_issues`` -> ``open issues``."""
+    return e(str(metric).replace("_", " "))
+
+
+def unit_of(meta: Mapping) -> str:
+    """What a platform calls its packages, escaped (``packages`` by default,
+    for a summary made before platforms had a ``unit``)."""
+    return e(meta.get("unit") or "packages")
+
+
+def tab_href(view: str, **params: str) -> str:
+    """``#tab=<view>&...``: the page's one URL spelling, encoded and escaped."""
+    q = "&".join(
+        f"{k}={quote(str(v), safe='')}" for k, v in {"tab": view, **params}.items()
+    )
+    return e("#" + q)
 
 
 def metric(row: Mapping, name: str) -> int | None:

@@ -9,18 +9,19 @@ picks the one a bare URL opens.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+import warnings
+from collections.abc import Iterable, Mapping
 from typing import Any
 
+from pkgreach.platforms import PLATFORMS
 from pkgreach.render.assets import CSS, JS
-from pkgreach.render.fmt import e, link, plural
+from pkgreach.render.fmt import e, link, plural, tab_href
+from pkgreach.render.platform import platform_section
+from pkgreach.render.read import platform_order, rows_of
 from pkgreach.render.views import (
     movers,
     overview,
-    platform_order,
-    platform_section,
     projects,
-    rows_of,
 )
 
 DFLT_TITLE = "Package reach"
@@ -37,10 +38,10 @@ scanners and bots fetch every release of every package, so a package nobody
 uses still gets a steady trickle. The <b>noise floor</b> is the 25th percentile
 of 30-day downloads among the packages followed here that were downloaded at
 all; <b>× floor</b> says how far above it a package is. A package near 1× is
-probably only seen by robots, and rows under 3× are dimmed.</p>
+probably only seen by robots, and rows under {sx}× are dimmed.</p>
 <p><b>Change</b> is shown against the platform's median package: when robot
 traffic doubles across a registry, every package doubles, and that says nothing
-about yours. A package that was under 3× the floor in the prior 30 days is
+about yours. A package that was under {sx}× the floor in the prior 30 days is
 marked <i>low base</i>; one not followed for the whole prior window, <i>new</i>.</p>
 <p><b>The strongest signs of real use</b> are the ones a robot does not create:
 <b>dependents</b> (other packages and repositories that declare it, from
@@ -49,6 +50,12 @@ ecosyste.ms), stars and forks, and issues opened by people other than you.</p>
 Registries keep only a few months of daily counts, so this history starts at
 each package's first collection.</p></details>
 """
+
+
+def _how_to_read(summary: Mapping) -> str:
+    sxs = {p.get("signal_x_floor") or 3.0 for p in summary["platforms"].values()}
+    sx = "/".join(f"{x:g}" for x in sorted(sxs))
+    return HOW_TO_READ.replace("{sx}", sx)
 
 
 def views_of(summary: Mapping[str, Any]) -> list[str]:
@@ -68,9 +75,11 @@ def _status(summary: Mapping) -> str:
 def _bar(summary: Mapping) -> str:
     ps = summary["platforms"]
     order = platform_order(summary)
-    g1 = '<a href="#tab=overview" data-tab="overview" data-title="Overview">Overview</a>'
+    g1 = (
+        '<a href="#tab=overview" data-tab="overview" data-title="Overview">Overview</a>'
+    )
     g1 += "".join(
-        f'<a href="#tab={e(p)}" data-tab="{e(p)}" data-title="{e(ps[p]["title"])}">'
+        f'<a href="{tab_href(p)}" data-tab="{e(p)}" data-title="{e(ps[p]["title"])}">'
         f'{e(ps[p]["title"])} <span class="n">{ps[p]["packages"]:,}</span></a>'
         for p in order
     )
@@ -78,9 +87,10 @@ def _bar(summary: Mapping) -> str:
         f'<a href="#tab={v}" data-tab="{v}" data-title="{t}">{t}</a>'
         for v, t in _MORE_VIEWS.items()
     )
-    jump = " ".join(
-        f'<a href="#sec-{e(p)}">{e(ps[p]["title"])}</a>' for p in order
-    ) + ' <a href="#how">How to read</a>'
+    jump = (
+        " ".join(f'<a href="#sec-{e(p)}">{e(ps[p]["title"])}</a>' for p in order)
+        + ' <a href="#how">How to read</a>'
+    )
     return (
         '<div class="bar"><div class="wrap">'
         f'<nav class="tabs jsonly" aria-label="Views"><div class="g1">{g1}</div>'
@@ -97,21 +107,40 @@ def render_page(
     *,
     title: str = DFLT_TITLE,
     default_view: str = DFLT_VIEW,
+    known_platforms: Iterable[str] = PLATFORMS,
 ) -> str:
     """The report page for a :func:`~pkgreach.analyze.summarize` result.
 
     ``default_view``: what a bare URL opens: ``"overview"``, a platform's
-    name (``"pypi"``), ``"all"``, ``"projects"`` or ``"movers"``.
+    name (``"pypi"``), ``"all"``, ``"projects"`` or ``"movers"``. A platform
+    of ``known_platforms`` with no package in this summary (all pruned, say)
+    falls back to the Overview with a warning, so a weekly site keeps
+    building; any other unknown name is an error.
     """
     valid = views_of(summary)
     if default_view not in valid:
-        raise ValueError(
-            f"default_view={default_view!r} is not a view of this report; "
-            f"choose one of {valid}"
-        )
+        if default_view in set(known_platforms):
+            warnings.warn(
+                f"default_view={default_view!r}: no {default_view} packages in this "
+                f"report; opening on {DFLT_VIEW!r}",
+                stacklevel=2,
+            )
+            default_view = DFLT_VIEW
+        else:
+            raise ValueError(
+                f"default_view={default_view!r} is not a view of this report; "
+                f"choose one of {valid}"
+            )
     clash = set(summary["platforms"]) & set(FIXED_VIEWS)
     if clash:
         raise ValueError(f"platform names clash with view names: {sorted(clash)}")
+    spaced = [
+        p
+        for p in summary["platforms"]
+        if not str(p) or any(c.isspace() for c in str(p))
+    ]
+    if spaced:
+        raise ValueError(f"platform names must be non-empty, without spaces: {spaced}")
     ps = summary["platforms"]
     sections = "".join(
         platform_section(p, rows_of(summary, p), ps[p]) for p in platform_order(summary)
@@ -133,7 +162,7 @@ def render_page(
 {sections}
 {projects(summary)}
 {movers(summary)}
-<section data-view="overview all">{HOW_TO_READ}</section>
+<section data-view="overview all">{_how_to_read(summary)}</section>
 </main>
 <footer class="wrap muted small"><p>Downloads: {e(att.get("downloads", ""))}.
 Dependents: {link("https://ecosyste.ms", "ecosyste.ms")}, licensed

@@ -11,6 +11,7 @@ client-side views, the data baked in, nothing fetched at view time.
 
 from __future__ import annotations
 
+import inspect
 import json
 from collections.abc import Callable, Mapping, MutableMapping
 from typing import Any
@@ -20,12 +21,26 @@ from pkgreach.render import DFLT_TITLE, DFLT_VIEW, render_page
 from pkgreach.tables import LAST_RUN_KEY, SUMMARY_KEY
 
 Summary = dict[str, Any]
-#: ``render(summary, *, title, default_view)``: the page's HTML, or a mapping
-#: of file names to contents (``index.html`` among them) for several pages.
+#: ``render(summary, **options)``: the page's HTML, or a mapping of file names
+#: to contents (``index.html`` among them) for several pages. It is given only
+#: the options (``title``, ``default_view``) its signature names, so a renderer
+#: that needs none is ``render(summary)``, and a knob added later breaks none.
 Render = Callable[..., "str | Mapping[str, str]"]
 
 #: The default page, under the name earlier versions exported.
 render_html = render_page
+
+
+def _accepted(func: Callable, **options: Any) -> dict[str, Any]:
+    """The ``options`` that ``func`` takes (all of them if it takes ``**kwargs``)."""
+    try:
+        params = inspect.signature(func).parameters.values()
+    except (TypeError, ValueError):  # a builtin or C callable: give it everything
+        return options
+    if any(p.kind is p.VAR_KEYWORD for p in params):
+        return options
+    names = {p.name for p in params}
+    return {k: v for k, v in options.items() if k in names}
 
 
 def build_site(
@@ -47,10 +62,12 @@ def build_site(
     (``last_run.json``) is published next to the page when the store has one.
     """
     summary = analyze(store)
-    page = render(summary, title=title, default_view=default_view)
+    page = render(summary, **_accepted(render, title=title, default_view=default_view))
     out[SUMMARY_KEY] = json.dumps(summary, indent=1) + "\n"
     if LAST_RUN_KEY in store:
         out[LAST_RUN_KEY] = store[LAST_RUN_KEY]
-    for key, content in ({"index.html": page} if isinstance(page, str) else page).items():
+    for key, content in (
+        {"index.html": page} if isinstance(page, str) else page
+    ).items():
         out[key] = content
     return summary

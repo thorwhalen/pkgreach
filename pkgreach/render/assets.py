@@ -126,12 +126,13 @@ tabs.forEach(a=>a.dataset.tab===v?a.setAttribute('aria-current','page'):a.remove
 if(mbtn)mbtn.classList.toggle('cur',!!menu.querySelector('[aria-current]'));
 const a=tabs.find(a=>a.dataset.tab===v);document.title=a.dataset.title+' · '+T;
 $$('section.tbl').forEach(sec=>{const own=sec.dataset.view.split(' ')[0]===v;
-if(own)table(sec,S);else if(v==='all')table(sec,{all:1,noise:1})})}
+if(own)table(sec,S);else if(v==='all')table(sec,{all:1,noise:1,sort:S.sort})})}
 function val(r,i){const c=r.cells[i];if(!c)return null;if(c.dataset.s!==undefined)return c.dataset.s;
 const v=c.dataset.v;return v===undefined||v===''?null:+v}
 function table(sec,st){const tb=sec.querySelector('tbody'),rows=[...tb.rows];
-const q=(st.q||'').toLowerCase().trim(),sort=st.sort||sec.dataset.sort||'';
-const desc=sort[0]==='-',k=desc?sort.slice(1):sort,ths=$$('th',sec),col=ths.findIndex(t=>t.dataset.k===k);
+const q=(st.q||'').toLowerCase().trim(),ths=$$('th',sec),has=s=>ths.some(t=>t.dataset.k===s.replace(/^-/,''));
+const sort=st.sort&&has(st.sort)?st.sort:(sec.dataset.sort||'');
+const desc=sort[0]==='-',k=desc?sort.slice(1):sort,col=ths.findIndex(t=>t.dataset.k===k);
 const dir=desc?-1:1,quiet=r=>+r.classList.contains('quiet');
 rows.sort((a,b)=>quiet(a)-quiet(b)||(col<0?0:cmp(val(a,col),val(b,col))*dir)||a.dataset.i-b.dataset.i);
 function cmp(x,y){if(x===y)return 0;if(x===null)return dir;if(y===null)return -dir;return x<y?-1:1}
@@ -141,7 +142,8 @@ r.hidden=!ok||(!st.all&&lim&&n>lim);if(!r.hidden)shown++;tb.appendChild(r)});
 ths.forEach(t=>{if(!t.dataset.k)return;const on=t.dataset.k===k;
 t.setAttribute('aria-sort',on?(desc?'descending':'ascending'):'none');
 t.querySelector('button').setAttribute('aria-pressed',on)});
-const sel=sec.querySelector('select.sort');if(sel)sel.value=sort;
+const sel=sec.querySelector('select.sort');if(sel){$$('option.tmp',sel).forEach(o=>o.remove());sel.value=sort;
+if(sel.value!==sort&&col>=0){const o=new Option(ths[col].textContent+(desc?' ▾':' ▴'),sort);o.className='tmp';sel.add(o);sel.value=sort}}
 if(nb)nb.setAttribute('aria-pressed',!st.noise);
 const inp=sec.querySelector('input.q');if(inp&&document.activeElement!==inp)inp.value=st.q||'';
 const more=sec.querySelector('.more');if(more){more.hidden=!lim||n<=lim;
@@ -174,7 +176,8 @@ const unpress=ev=>{const t=ev.target.closest&&ev.target.closest('[data-pressed]'
 document.addEventListener('pointerdown',ev=>{const t=ev.target.closest('a,button,summary');if(t)t.dataset.pressed=''});
 ['pointerup','pointercancel','pointerout'].forEach(n=>document.addEventListener(n,unpress));
 addEventListener('pageshow',()=>$$('[data-pressed]').forEach(t=>delete t.dataset.pressed));
-addEventListener('hashchange',()=>go(parse(location.hash)));
-go(parse(location.hash));
+function route(){const h=location.hash.slice(1),el=h&&!h.includes('=')&&document.getElementById(h);
+if(el){go({tab:'all'});el.scrollIntoView()}else go(parse(location.hash))}
+addEventListener('hashchange',route);route();
 })();
 """
