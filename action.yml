@@ -1,0 +1,88 @@
+name: pkgreach
+description: Track downloads, dependents and stars of your packages on PyPI, npm, crates.io and GitHub, keep the history, and build a report site.
+branding:
+  icon: trending-up
+  color: green
+inputs:
+  config:
+    description: Path to pkgreach.toml in the checked-out repository.
+    default: pkgreach.toml
+  data-branch:
+    description: Branch of this repository that keeps the history (created on first run).
+    default: pkgreach-data
+  site-dir:
+    description: Where to write the report site (upload it with actions/upload-pages-artifact).
+    default: _pkgreach_site
+  title:
+    description: Title of the report page.
+    default: Package reach
+  token:
+    description: Token for reading GitHub (public data only; it only raises the rate limit).
+    default: ${{ github.token }}
+  commit:
+    description: Commit and push the updated history (pushed with the checkout's credentials).
+    default: "true"
+  fail-on-errors:
+    description: Fail the job if any package failed (the report is still built and pushed).
+    default: "false"
+outputs:
+  site-dir:
+    description: The folder holding the report site.
+    value: ${{ inputs.site-dir }}
+runs:
+  using: composite
+  steps:
+    - name: Install pkgreach
+      shell: bash
+      run: |
+        set -euo pipefail
+        python3 -c 'import sys; sys.exit(sys.version_info < (3, 11))' || {
+          echo "::error::pkgreach needs Python 3.11+; add actions/setup-python before this step."; exit 1; }
+        python3 -m venv "$RUNNER_TEMP/pkgreach-venv"
+        "$RUNNER_TEMP/pkgreach-venv/bin/pip" install --quiet "$GITHUB_ACTION_PATH"
+
+    - name: Collect, commit, report
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        CONFIG: ${{ inputs.config }}
+        BRANCH: ${{ inputs.data-branch }}
+        SITE_DIR: ${{ inputs.site-dir }}
+        TITLE: ${{ inputs.title }}
+        COMMIT: ${{ inputs.commit }}
+        FAIL_ON_ERRORS: ${{ inputs.fail-on-errors }}
+      run: |
+        set -euo pipefail
+        PKGREACH="$RUNNER_TEMP/pkgreach-venv/bin/pkgreach"
+        DATA_DIR="$RUNNER_TEMP/pkgreach-data"
+        CONFIG="$(realpath "$CONFIG")"
+        # The history lives on its own branch, checked out as a worktree.
+        # A network or auth failure must not look like "no branch yet".
+        if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null; then
+          git fetch -q --depth=1 origin "$BRANCH"
+          git worktree add -q -B "$BRANCH" "$DATA_DIR" FETCH_HEAD
+        else
+          rc=$?
+          [ "$rc" = 2 ] || { echo "::error::cannot reach origin (git ls-remote exit $rc)"; exit 1; }
+          git worktree add -q --orphan -b "$BRANCH" "$DATA_DIR"
+        fi
+        flags=()
+        [ "$FAIL_ON_ERRORS" = "true" ] && flags+=(--fail-on-errors)
+        status=0
+        "$PKGREACH" collect --config "$CONFIG" --data-dir "$DATA_DIR" "${flags[@]}" || status=$?
+        if [ "$COMMIT" = "true" ]; then
+          cd "$DATA_DIR"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -q -m "pkgreach: collect $(date -u +%F) [skip ci]"
+          fi
+          # nothing ever committed (a first run that collected nothing): no push
+          if git rev-parse -q --verify HEAD >/dev/null; then
+            git push -q origin "HEAD:refs/heads/$BRANCH"
+          fi
+          cd - >/dev/null
+        fi
+        "$PKGREACH" report --data-dir "$DATA_DIR" --out "$SITE_DIR" --title "$TITLE"
+        exit $status

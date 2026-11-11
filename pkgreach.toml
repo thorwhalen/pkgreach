@@ -1,0 +1,16 @@
+# The author's own settings, used by .github/workflows/reach.yml every Sunday.
+# Only public account names belong here: this file is public.
+# Docs: https://github.com/thorwhalen/pkgreach#configuration
+
+[pypi]
+users = ["thorwhalen1"]
+
+[npm]
+users = ["thorwhalen1"]
+
+[crates]
+users = ["thorwhalen"]
+
+[github]
+users = ["thorwhalen", "i2mint"]
+where = { fork = false, archived = false }
