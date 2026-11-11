@@ -18,13 +18,24 @@ from datetime import date, datetime, timedelta, timezone
 from fnmatch import fnmatch
 from typing import Any
 
-from ghtraffic.tables import Files, read_table, table_files, write_rows
-
 from pkgreach.config import DFLT_DATA_DIR, Selection, Settings
 from pkgreach.http import Http, make_http
 from pkgreach.platforms import PLATFORMS, Platform
 from pkgreach.platforms.ecosystems import dependents as ecosystems_dependents
-from pkgreach.tables import LAST_RUN_KEY, MANIFEST_KEY, SCHEMA_VERSION, TABLES
+from pkgreach.tables import (
+    DATA_LICENSE,
+    Files,
+    dump_csv,
+    parse_csv,
+    read_table,
+    table_files,
+    write_rows,
+    DATA_LICENSE_KEY,
+    LAST_RUN_KEY,
+    MANIFEST_KEY,
+    SCHEMA_VERSION,
+    TABLES,
+)
 
 _log = logging.getLogger("pkgreach")
 #: Days re-fetched before the last collected day: registries revise recent days.
@@ -55,7 +66,9 @@ class RunReport:
 
 def _matches(record: Mapping, where: Mapping) -> bool:
     return all(
-        k in record and str(record[k]).lower() == str(v).lower()
+        not k.startswith("_")
+        and k in record
+        and str(record[k]).lower() == str(v).lower()
         for k, v in where.items()
     )
 
@@ -70,23 +83,28 @@ def select_packages(
 ) -> dict[str, dict]:
     """The packages a selection names, as ``{name: metadata record}``.
 
-    The users' packages, plus the named ones, minus ``exclude`` patterns,
-    keeping those whose metadata matches ``where`` and ``select``.
+    The users' packages that match ``where``, plus the named ones (named
+    explicitly, so ``where`` does not apply to them), minus ``exclude``
+    patterns, keeping those ``select`` accepts. Names are normalized by the
+    platform (PyPI: ``Flask_Login`` and ``flask-login`` are one package).
     """
+    norm = platform.normalize
     records: dict[str, dict] = {}
     for user in selection.users:
         try:
             for r in platform.list_packages(user, http=http):
-                records.setdefault(r["package"], r)
+                if _matches(r, selection.where):
+                    records.setdefault(
+                        norm(r["package"]), {**r, "package": norm(r["package"])}
+                    )
         except Exception as e:  # noqa: BLE001 - one account never sinks the run
             on_error(f"{platform.name}:@{user}", e)
     for name in selection.packages:
-        records.setdefault(name, {"package": name})
+        records.setdefault(norm(name), {"package": norm(name)})
     return {
         name: r
         for name, r in sorted(records.items())
         if not any(fnmatch(name, pat) for pat in selection.exclude)
-        and _matches(r, selection.where)
         and (select is None or select(platform.name, r))
     }
 
@@ -100,6 +118,25 @@ def _last_dates(store: MutableMapping, platform: str) -> dict[str, str]:
         if r["platform"] == platform:
             last[r["package"]] = max(last.get(r["package"], ""), str(r["date"]))
     return last
+
+
+def _prune(store: MutableMapping, platform: str, *, keep: set[str]) -> int:
+    """Remove a platform's packages that are no longer followed from the
+    ``packages`` and ``metrics`` tables (a repo made private must disappear
+    from a public history). Returns the number of files changed."""
+    changed = 0
+    for name in ("packages", "metrics"):
+        spec = TABLES[name]
+        for path in table_files(store, spec):
+            text = store[path]
+            rows = parse_csv(spec, text)
+            kept = [
+                r for r in rows if r["platform"] != platform or r["package"] in keep
+            ]
+            if len(kept) != len(rows):
+                store[path] = dump_csv(spec, kept)
+                changed += 1
+    return changed
 
 
 def write_manifest(store: MutableMapping, *, updated: str) -> dict:
@@ -143,7 +180,7 @@ def collect(
             to support a new registry without touching anything else.
         http: the transport (default :func:`~pkgreach.http.make_http`).
         select: ``(platform, metadata) -> keep?``, on top of the settings.
-        dependents: ``(platform, package, *, http) -> {metric: count}``; the
+        dependents: ``(ecosystem, package, *, http) -> {metric: count}``; the
             default asks ecosyste.ms for dependent packages and repositories.
         now: the clock; log: where the one-line summary goes.
     """
@@ -177,9 +214,12 @@ def collect(
             if name in last:
                 since = date.fromisoformat(last[name]) - timedelta(DFLT_OVERLAP_DAYS)
             got = platform.fetch(record, http=http, today=today, since=since)
-            if settings.dependents and platform.dependents_registry:
-                deps = dependents(platform.dependents_registry, name, http=http)
-                got["metrics"] = {**deps, **got.get("metrics", {})}
+            if settings.dependents and platform.ecosystem:
+                try:  # a dependents outage never costs the downloads
+                    deps = dependents(platform.ecosystem, name, http=http)
+                    got["metrics"] = {**deps, **got.get("metrics", {})}
+                except Exception as e:  # noqa: BLE001 - recorded, run goes on
+                    got["dependents_error"] = e
             return got
 
         def safely(item):
@@ -189,13 +229,27 @@ def collect(
                 return item[0], None, e
 
         n_ok = n_err = 0
+        listing_ok = not any(k.startswith(f"{pname}:@") for k in report.errors)
         with ThreadPoolExecutor(max_workers=max(1, settings.max_workers)) as pool:
             for name, got, err in pool.map(safely, chosen.items()):
+                old = old_packages.get((pname, name), {})
                 if err is not None:
                     on_error(f"{pname}:{name}", err)
                     n_err += 1
+                    # still followed: keep it current, with what we knew
+                    rows["packages"].append(
+                        {
+                            **old,
+                            "platform": pname,
+                            "package": name,
+                            "first_seen": old.get("first_seen") or today.isoformat(),
+                            "last_seen": today.isoformat(),
+                        }
+                    )
                     continue
                 n_ok += 1
+                if "dependents_error" in got:
+                    on_error(f"{pname}:{name}:dependents", got["dependents_error"])
                 rows["downloads"] += [
                     {"platform": pname, "package": name, **r}
                     for r in got.get("downloads", [])
@@ -207,7 +261,6 @@ def collect(
                     for m, v in got.get("metrics", {}).items()
                     if v is not None
                 ]
-                old = old_packages.get((pname, name), {})
                 fetched_from = got.get("history_from", "")
                 rows["packages"].append(
                     {
@@ -223,6 +276,8 @@ def collect(
                     }
                 )
         report.packages[pname] = n_ok
+        if platform.prune_unlisted and listing_ok:
+            report.files_changed += _prune(store, pname, keep=set(chosen))
         rows["runs"].append(
             {
                 "started_at": report.started_at,
@@ -239,6 +294,8 @@ def collect(
         if rows[name]:
             report.files_changed += write_rows(store, spec, rows[name])
     store[LAST_RUN_KEY] = json.dumps(asdict(report), indent=2) + "\n"
+    if store.get(DATA_LICENSE_KEY) != DATA_LICENSE:
+        store[DATA_LICENSE_KEY] = DATA_LICENSE
     write_manifest(store, updated=today.isoformat())
     log(report.summary())
     return report

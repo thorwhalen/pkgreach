@@ -21,12 +21,50 @@ shape, and the same merge problem, as the history of a repo's views.
 
 from __future__ import annotations
 
-from ghtraffic.tables import TableSpec
+# The one import of ghtraffic: every other module goes through here, so moving the
+# store to its own package (thorwhalen/ghtraffic#7) changes this line only.
+from ghtraffic.tables import (
+    Files,
+    TableSpec,
+    dump_csv,
+    parse_csv,
+    merge_rows,
+    read_table,
+    table_files,
+    write_rows,
+)
+
+__all__ = [
+    "Files",
+    "TableSpec",
+    "dump_csv",
+    "parse_csv",
+    "TABLES",
+    "merge_rows",
+    "read_table",
+    "table_files",
+    "write_rows",
+]
 
 SCHEMA_VERSION = 1
 MANIFEST_KEY = "manifest.json"
 LAST_RUN_KEY = "last_run.json"
 SUMMARY_KEY = "summary.json"
+DATA_LICENSE_KEY = "DATA-LICENSE.md"
+DATA_LICENSE = """\
+# Where this data comes from, and on what terms
+
+- `metrics.csv`, metrics `dependent_packages` and `dependent_repos`: from
+  [ecosyste.ms](https://ecosyste.ms), licensed
+  [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Collected weekly
+  and kept as a change log; reuse them under the same licence, crediting ecosyste.ms.
+- `downloads/`: daily download counts from pypistats.org (PyPI), api.npmjs.org (npm)
+  and crates.io.
+- Other metrics and `packages.csv`: the registries' public metadata, and the
+  GitHub REST API for public repositories.
+
+Collected by pkgreach (https://github.com/thorwhalen/pkgreach).
+"""
 
 TABLES: dict[str, TableSpec] = {
     t.name: t

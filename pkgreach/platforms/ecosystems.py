@@ -14,10 +14,15 @@ import urllib.parse
 from pkgreach.http import HttpError
 
 API = "https://packages.ecosyste.ms/api/v1"
+#: Ecosystem (purl type) to ecosyste.ms registry name.
+REGISTRIES = {"pypi": "pypi.org", "npm": "npmjs.org", "cargo": "crates.io"}
 
 
-def dependents(registry: str, package: str, *, http) -> dict[str, int]:
+def dependents(ecosystem: str, package: str, *, http) -> dict[str, int]:
     """``{"dependent_packages": n, "dependent_repos": m}``; ``{}`` if not indexed."""
+    registry = REGISTRIES.get(ecosystem)
+    if registry is None:
+        return {}
     name = urllib.parse.quote(package, safe="")
     try:
         d = http(f"{API}/registries/{registry}/packages/{name}")

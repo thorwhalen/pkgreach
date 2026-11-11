@@ -7,27 +7,34 @@ push access and is private; that is ghtraffic's job
 
 Listing uses ``GET /users/{owner}/repos`` (users and organizations alike), one
 call per 100 repos, and the listing already carries the numbers, so fetching
-costs no further call. A token (``GITHUB_TOKEN`` or ``GH_TOKEN``) only raises
-the rate limit (60 calls an hour without one).
+costs no further call. A token only raises the rate limit (60 calls an hour
+without one); it reaches the requests through the transport
+(``make_http(headers_by_host=auth_headers(token))``), never from here.
 """
 
 from __future__ import annotations
 
-import os
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from datetime import date
 
 API = "https://api.github.com"
+HOST = "api.github.com"
 PAGE_SIZE = 100
 TOKEN_ENV_VARS = ("GITHUB_TOKEN", "GH_TOKEN")
+_HEADERS = {
+    "Accept": "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+}
 
 
-def _headers() -> dict[str, str]:
-    h = {"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"}
-    token = next((os.environ[v] for v in TOKEN_ENV_VARS if os.environ.get(v)), "")
-    if token:
-        h["Authorization"] = f"Bearer {token}"
-    return h
+def auth_headers(token: str | None) -> dict[str, Mapping[str, str]]:
+    """``headers_by_host`` for :func:`pkgreach.http.make_http`: the token, for GitHub only."""
+    return {HOST: {"Authorization": f"Bearer {token}"}} if token else {}
+
+
+def token_from_env(environ: Mapping[str, str]) -> str:
+    """The first of ``GITHUB_TOKEN``, ``GH_TOKEN`` set in ``environ``, or ``""``."""
+    return next((environ[v] for v in TOKEN_ENV_VARS if environ.get(v)), "")
 
 
 def _record(r: dict) -> dict:
@@ -57,7 +64,7 @@ def list_packages(user: str, *, http) -> Iterator[dict]:
     while True:
         got = http(
             f"{API}/users/{user}/repos?type=owner&per_page={PAGE_SIZE}&page={page}",
-            headers=_headers(),
+            headers=_HEADERS,
         )
         for r in got:
             if not r.get("private", False):
@@ -70,7 +77,7 @@ def list_packages(user: str, *, http) -> Iterator[dict]:
 def fetch(record: dict, *, http, today: date, since: date | None = None) -> dict:
     """Stars, forks and open issues of one public repo."""
     if "_metrics" not in record:  # named in `packages`, not listed
-        r = http(f"{API}/repos/{record['package']}", headers=_headers())
+        r = http(f"{API}/repos/{record['package']}", headers=_HEADERS)
         if r.get("private", False):
             raise ValueError("private repository: not followed (public report)")
         record = _record(r)

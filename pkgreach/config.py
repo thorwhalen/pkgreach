@@ -36,6 +36,10 @@ DFLT_DATA_DIR = (
 RUN_KEYS = ("max_workers", "dependents")
 
 
+class SettingsError(ValueError):
+    """A settings file that is missing or wrong (a user error, not a bug)."""
+
+
 @dataclass(frozen=True)
 class Selection:
     """Which packages of one platform to follow.
@@ -78,7 +82,7 @@ def _selection(platform: str, d: Mapping) -> Selection:
     known = [f.name for f in fields(Selection)]
     unknown = sorted(set(d) - set(known))
     if unknown:
-        raise ValueError(
+        raise SettingsError(
             f"Unknown key(s) {unknown} in [{platform}]; valid keys are {known}."
         )
     kw = {k: _tuple(d[k]) for k in ("users", "packages", "exclude") if k in d}
@@ -92,7 +96,7 @@ def settings_from_mapping(d: Mapping, *, known_platforms=None) -> Settings:
     if known_platforms is not None:
         unknown = sorted(set(d) - set(known_platforms))
         if unknown:
-            raise ValueError(
+            raise SettingsError(
                 f"Unknown platform(s) or setting(s) {unknown}; platforms are "
                 f"{sorted(known_platforms)}, settings are {list(RUN_KEYS)}."
             )
@@ -102,12 +106,15 @@ def settings_from_mapping(d: Mapping, *, known_platforms=None) -> Settings:
 
 
 def load_settings(path: str | os.PathLike, *, known_platforms=None) -> Settings:
-    """Settings from a TOML file; a missing file is an error (nothing to follow)."""
+    """Settings from a TOML file; a missing or invalid file raises :class:`SettingsError`."""
     p = Path(path)
     if not p.exists():
-        raise FileNotFoundError(
+        raise SettingsError(
             f"No settings file at {p}. Write one (`pkgreach init`) that lists "
             'your accounts per platform, e.g. [pypi] users = ["you"].'
         )
-    doc = tomllib.loads(p.read_text(encoding="utf-8"))
+    try:
+        doc = tomllib.loads(p.read_text(encoding="utf-8"))
+    except tomllib.TOMLDecodeError as e:
+        raise SettingsError(f"{p} is not valid TOML: {e}") from None
     return settings_from_mapping(doc, known_platforms=known_platforms)

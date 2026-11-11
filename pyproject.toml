@@ -15,7 +15,7 @@ keywords = ["pypi", "npm", "crates", "github", "downloads", "statistics", "depen
 authors = [
     { name = "Thor Whalen" },
 ]
-dependencies = ["ghtraffic>=0.0.4"]
+dependencies = ["ghtraffic>=0.0.4,<0.1", "cw>=0.1.14,<0.2"]
 
 [project.scripts]
 pkgreach = "pkgreach.__main__:main"

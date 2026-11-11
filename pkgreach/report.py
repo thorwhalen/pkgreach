@@ -1,9 +1,13 @@
 """The report: a static site (one ``index.html`` plus ``summary.json``).
 
 :func:`build_site` reads the history, summarizes it (the ``analyze=`` seam)
-and writes the page (the ``render=`` seam) into ``out``, any
+and writes the page into ``out``, any
 ``MutableMapping[str, str]``: a folder by default, which any static host
 serves (GitHub Pages, your own server, an S3 bucket through a ``dol`` store).
+
+Nothing here knows a platform by name: titles, the kind of table (daily
+downloads or snapshot metrics) and the headline metrics come from the
+summary, which takes them from each :class:`~pkgreach.platforms.Platform`.
 
 The page is generated, not an app: the data is baked in, nothing is fetched at
 view time, and the only script sorts tables. Every string from a registry is
@@ -21,12 +25,6 @@ from pkgreach.analyze import summarize
 from pkgreach.tables import SUMMARY_KEY
 
 Summary = dict[str, Any]
-PLATFORM_TITLES = {
-    "pypi": "PyPI",
-    "npm": "npm",
-    "crates": "crates.io",
-    "github": "GitHub",
-}
 DFLT_TITLE = "Package reach"
 
 
@@ -90,13 +88,25 @@ def _metric(row: Mapping, name: str) -> dict:
     return row["metrics"].get(name, {})
 
 
-def _card(platform: str, p: Mapping) -> str:
-    title = PLATFORM_TITLES.get(platform, platform)
-    if platform == "github":
-        t = p["metric_totals"]
+def _label(metric: str) -> str:
+    return metric.replace("_", " ")
+
+
+def _errors_note(summary: Mapping) -> str:
+    n = summary.get("last_run_errors")
+    if not n:
+        return ""
+    return f' · <span class="down">last run: {n} errors (see last_run.json)</span>'
+
+
+def _card(p: Mapping) -> str:
+    if p["kind"] == "snapshot":
+        t, head = p["metric_totals"], p["headline"]
+        rest = " · ".join(f"{_num(t.get(m))} {_label(m)}" for m in head[1:])
         body = (
-            f'<div class="big">{_num(t.get("stars"))}</div><div class="small">stars '
-            f"across {p['packages']} repos · {_num(t.get('forks'))} forks</div>"
+            f'<div class="big">{_num(t.get(head[0]) if head else None)}</div>'
+            f'<div class="small">{_label(head[0]) if head else ""} across '
+            f"{p['packages']} {'· ' + rest if rest else ''}</div>"
         )
     else:
         prev = p["downloads_prev_30d"]
@@ -109,7 +119,7 @@ def _card(platform: str, p: Mapping) -> str:
             f"{_num(deps)} dependent packages · noise floor "
             f"{_num(p['noise_floor_30d'])}/30d</div>"
         )
-    return f'<section class="card"><h3>{_e(title)}</h3>{body}</section>'
+    return f'<section class="card"><h3>{_e(p["title"])}</h3>{body}</section>'
 
 
 def _registry_table(rows: list[Mapping]) -> str:
@@ -133,23 +143,22 @@ def _registry_table(rows: list[Mapping]) -> str:
             f"{_pct(r['growth_30d'])}</td>"
             f'<td data-v="{xf if xf is not None else ""}">'
             f"{_times(xf)}</td>"
-            f'<td data-v="{(dp or 0) * 1000 + (dr or 0)}">{deps}</td>'
+            f'<td data-v="{(dp or 0) * 1_000_000 + (dr or 0)}">{deps}</td>'
             f"<td>{_spark(r['weekly'])}</td></tr>"
         )
     return f'<table class="sortable"><thead>{head}</thead><tbody>{"".join(body)}</tbody></table>'
 
 
-def _github_table(rows: list[Mapping]) -> str:
-    rows = sorted(rows, key=lambda r: -(_metric(r, "stars").get("value") or 0))
-    head = (
-        "<tr><th data-sort>repo</th><th data-sort=num>stars</th>"
-        "<th data-sort=num>forks</th><th data-sort=num>watchers</th>"
-        "<th data-sort=num>open issues</th></tr>"
+def _snapshot_table(rows: list[Mapping], headline: list[str]) -> str:
+    first = headline[0] if headline else ""
+    rows = sorted(rows, key=lambda r: -(_metric(r, first).get("value") or 0))
+    head = "<tr><th data-sort>name</th>" + "".join(
+        f"<th data-sort=num>{_e(_label(m))}</th>" for m in headline
     )
     body = []
     for r in rows:
         cells = []
-        for m in ("stars", "forks", "watchers", "open_issues"):
+        for m in headline:
             d = _metric(r, m)
             cells.append(
                 f'<td data-v="{d.get("value", "")}">{_num(d.get("value"))}'
@@ -158,7 +167,10 @@ def _github_table(rows: list[Mapping]) -> str:
         body.append(
             f"<tr><td>{_link(r['url'], r['package'])}</td>{''.join(cells)}</tr>"
         )
-    return f'<table class="sortable"><thead>{head}</thead><tbody>{"".join(body)}</tbody></table>'
+    return (
+        f'<table class="sortable"><thead>{head}</tr></thead>'
+        f"<tbody>{''.join(body)}</tbody></table>"
+    )
 
 
 _CSS = """
@@ -219,16 +231,22 @@ each package's first collection.</p></details>
 def render_html(summary: Summary, *, title: str = DFLT_TITLE) -> str:
     """The report page for a :func:`~pkgreach.analyze.summarize` result."""
     platforms = summary["platforms"]
-    order = [p for p in PLATFORM_TITLES if p in platforms] + [
-        p for p in platforms if p not in PLATFORM_TITLES
-    ]
-    cards = "".join(_card(p, platforms[p]) for p in order)
+    # daily-download platforms first, by downloads; then snapshot ones
+    order = sorted(
+        platforms,
+        key=lambda n: (platforms[n]["kind"] != "daily", -platforms[n]["downloads_30d"]),
+    )
+    cards = "".join(_card(platforms[p]) for p in order)
     sections = []
     for p in order:
+        meta = platforms[p]
         rows = [r for r in summary["packages"] if r["platform"] == p]
-        table = _github_table(rows) if p == "github" else _registry_table(rows)
+        if meta["kind"] == "snapshot":
+            table = _snapshot_table(rows, meta["headline"])
+        else:
+            table = _registry_table(rows)
         sections.append(
-            f"<h2>{_e(PLATFORM_TITLES.get(p, p))} "
+            f"<h2>{_e(meta['title'])} "
             f'<span class="muted small">{len(rows)}</span></h2>'
             f'<div class="scroll">{table}</div>'
         )
@@ -240,10 +258,14 @@ def render_html(summary: Summary, *, title: str = DFLT_TITLE) -> str:
 <h1>{_e(title)}</h1>
 <p class="muted small">As of {_e(summary["as_of"])} · made with
 <a href="https://github.com/thorwhalen/pkgreach">pkgreach</a> ·
-<a href="summary.json">summary.json</a></p>
+<a href="summary.json">summary.json</a>{_errors_note(summary)}</p>
 <div class="cards">{cards}</div>
 {_HOW_TO_READ}
 {"".join(sections)}
+<p class="muted small">Downloads: pypistats.org, api.npmjs.org, crates.io.
+Dependents: <a href="https://ecosyste.ms">ecosyste.ms</a>, licensed
+<a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>,
+aggregated here. Stars and forks: GitHub, public repositories only.</p>
 </main><script>{_JS}</script></body></html>
 """
 
@@ -253,11 +275,16 @@ def build_site(
     out: MutableMapping,
     *,
     analyze: Callable[[MutableMapping], Summary] = summarize,
-    render: Callable[..., str] = render_html,
     title: str = DFLT_TITLE,
 ) -> Summary:
-    """Summarize the history in ``store`` and write the site into ``out``."""
+    """Summarize the history in ``store`` and write the site into ``out``.
+
+    ``analyze`` is the seam for another summary (it must return the shape of
+    :func:`~pkgreach.analyze.summarize`, which ``summary.json`` documents).
+    """
+    # seam candidate: render= (another page from the same summary), once a
+    # second renderer exists
     summary = analyze(store)
     out[SUMMARY_KEY] = json.dumps(summary, indent=1) + "\n"
-    out["index.html"] = render(summary, title=title)
+    out["index.html"] = render_html(summary, title=title)
     return summary

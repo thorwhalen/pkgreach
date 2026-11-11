@@ -85,6 +85,6 @@ def fetch(record: dict, *, http, today: date, since: date | None = None) -> dict
             {"date": d["day"], "series": "all", "count": d["downloads"]}
             for d in got.get("downloads", [])
         ],
-        "history_from": got.get("start", "") if since is None else "",
+        "history_from": got.get("start", ""),  # the min with earlier runs is kept
         "info": info,
     }

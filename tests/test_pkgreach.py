@@ -55,7 +55,7 @@ class FakeRegistry:
         }
 
     def platform(self, name="fake", registry="fake.org"):
-        return Platform(name, self.list_packages, self.fetch, registry)
+        return Platform(name, self.list_packages, self.fetch, ecosystem=registry)
 
 
 def _no_deps(*a, **k):
@@ -168,7 +168,7 @@ def test_settings_validation(tmp_path):
         settings_from_mapping({"pipy": {}}, known_platforms={"pypi"})
     with pytest.raises(ValueError, match="Unknown key"):
         settings_from_mapping({"pypi": {"user": ["me"]}})
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(ValueError, match="No settings file"):
         load_settings(tmp_path / "missing.toml")
 
 
@@ -192,3 +192,128 @@ def test_init_repo_writes_valid_config(tmp_path):
     wf = (tmp_path / WORKFLOW_PATH).read_text()
     assert "uses: x@1" in wf and "${{ steps.reach.outputs.site-dir }}" in wf
     assert init_repo(tmp_path, users={"pypi": ["me"]}) == []  # never overwrites
+
+
+def test_dropped_packages_leave_the_report(tmp_path):
+    """A package (or a repo made private) no longer listed leaves the summary."""
+    store = Files(tmp_path)
+    kw = dict(http=None, dependents=_no_deps)
+    reg = FakeRegistry({"a": 5, "gone": 5})
+    collect(
+        _settings(), store=store, platforms={"fake": reg.platform()}, now=_now(), **kw
+    )
+    reg2 = FakeRegistry({"a": 5})
+    later = TODAY + timedelta(days=7)
+    collect(
+        _settings(),
+        store=store,
+        platforms={"fake": reg2.platform()},
+        now=_now(later),
+        **kw,
+    )
+    s = summarize(store)
+    assert [r["package"] for r in s["packages"]] == ["a"]
+    assert "ecosyste.ms" in s["attribution"]["dependents"]
+    assert "CC BY-SA" in store["DATA-LICENSE.md"]
+
+
+def test_redirect_drops_authorization_across_hosts():
+    import urllib.request
+
+    from pkgreach.http import _SameHostAuthRedirect
+
+    req = urllib.request.Request(
+        "https://api.github.com/x", headers={"Authorization": "Bearer t", "X-A": "1"}
+    )
+    h = _SameHostAuthRedirect()
+    other = h.redirect_request(req, None, 302, "Found", {}, "https://example.org/y")
+    same = h.redirect_request(req, None, 302, "Found", {}, "https://api.github.com/z")
+    assert not other.has_header("Authorization") and other.has_header("X-a")
+    assert same.has_header("Authorization")
+
+
+def test_own_workflow_is_the_generated_one():
+    """The repo's weekly workflow is exactly what `pkgreach init` writes (one source)."""
+    from pathlib import Path
+
+    from pkgreach.scaffold import DFLT_CRON, WORKFLOW_TEMPLATE
+
+    own = Path(__file__).parent.parent / ".github" / "workflows" / "reach.yml"
+    assert own.read_text() == WORKFLOW_TEMPLATE.format(cron=DFLT_CRON, action_ref="./")
+
+
+def test_cli_report_and_init(tmp_path, capsys):
+    from pkgreach.__main__ import main
+
+    store = Files(tmp_path / "data")
+    collect(
+        _settings(),
+        store=store,
+        platforms={"fake": FakeRegistry({"a": 3}).platform()},
+        http=None,
+        dependents=_no_deps,
+        now=_now(),
+    )
+    site = tmp_path / "site"
+    assert (
+        main(["report", "--data-dir", str(tmp_path / "data"), "--out", str(site)]) == 0
+    )
+    assert (site / "index.html").exists()
+    repo = tmp_path / "repo"
+    assert main(["init", str(repo), "--pypi", "me", "--action-ref", "x@1"]) == 0
+    assert (repo / CONFIG_PATH).exists()
+    assert main(["collect", "--config", str(tmp_path / "nope.toml")]) != 0
+
+
+def test_pypi_names_are_normalized():
+    from pkgreach.platforms.pypi import normalize
+
+    assert normalize("Flask_Login") == normalize("flask.login") == "flask-login"
+
+
+def test_dependents_outage_keeps_downloads(tmp_path):
+    def broken(*a, **k):
+        raise RuntimeError("ecosyste.ms down")
+
+    store = Files(tmp_path)
+    reg = FakeRegistry({"a": 5})
+    r = collect(
+        _settings(),
+        store=store,
+        platforms={"fake": reg.platform()},
+        http=None,
+        dependents=broken,
+        now=_now(),
+    )
+    assert r.packages == {"fake": 1} and set(r.errors) == {"fake:a:dependents"}
+    assert read_table(store, TABLES["downloads"])
+
+
+def test_named_packages_bypass_where_and_unlisted_are_pruned(tmp_path):
+    from dataclasses import replace
+
+    store = Files(tmp_path)
+    reg = FakeRegistry({"a": 5, "b": 5, "named": 1})
+    plat = replace(reg.platform(), prune_unlisted=True)
+    sel = Selection(users=("me",), packages=("named",), where={"deprecated": False})
+    collect(
+        Settings(platforms={"fake": sel}),
+        store=store,
+        platforms={"fake": plat},
+        http=None,
+        dependents=_no_deps,
+        now=_now(),
+    )
+    seen = {r["package"] for r in read_table(store, TABLES["packages"])}
+    assert seen == {"a", "b", "named"}  # "named" lists as deprecated=False too
+    reg.counts.pop("b")  # b went private
+    collect(
+        Settings(platforms={"fake": sel}),
+        store=store,
+        platforms={"fake": plat},
+        http=None,
+        dependents=_no_deps,
+        now=_now(TODAY + timedelta(days=7)),
+    )
+    for t in ("packages", "metrics"):
+        assert "b" not in {r["package"] for r in read_table(store, TABLES[t])}

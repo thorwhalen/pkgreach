@@ -12,6 +12,7 @@
 
 from __future__ import annotations
 
+import re
 import xmlrpc.client
 from collections.abc import Iterator
 from datetime import date
@@ -22,6 +23,11 @@ JSON_URL = "https://pypi.org/pypi/{name}/json"
 #: pypistats categories to the series names stored.
 SERIES = {"with_mirrors": "all", "without_mirrors": "without_mirrors"}
 _REPO_KEYS = ("source", "source code", "repository", "github", "code", "homepage")
+
+
+def normalize(name: str) -> str:
+    """PEP 503: ``Flask_Login`` -> ``flask-login`` (pypistats only knows this form)."""
+    return re.sub(r"[-_.]+", "-", name).lower()
 
 
 def list_packages(user: str, *, http) -> Iterator[dict]:

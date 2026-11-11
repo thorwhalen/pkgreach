@@ -15,6 +15,8 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from pathlib import Path
 
+from pkgreach.platforms import PLATFORMS
+
 ACTION_REPO = "thorwhalen/pkgreach"
 FALLBACK_ACTION_REF = f"{ACTION_REPO}@main"
 #: 05:23 UTC on Sundays: off the top of the hour (GitHub delays on-the-hour
@@ -85,13 +87,23 @@ def _toml_list(items: Iterable[str]) -> str:
     return "[" + ", ".join(f'"{i}"' for i in items) + "]"
 
 
-def config_text(users: Mapping[str, Iterable[str]]) -> str:
-    """The ``pkgreach.toml`` following ``users`` per platform."""
+def _toml_inline(d: Mapping) -> str:
+    def v(x):
+        return str(x).lower() if isinstance(x, bool) else f'"{x}"'
+
+    return "{ " + ", ".join(f"{k} = {v(x)}" for k, x in d.items()) + " }"
+
+
+def config_text(users: Mapping[str, Iterable[str]], *, platforms=None) -> str:
+    """The ``pkgreach.toml`` following ``users`` per platform (each platform's
+    ``default_where`` included)."""
+    platforms = PLATFORMS if platforms is None else platforms
     tables = []
     for platform, names in users.items():
         lines = [f"[{platform}]", f"users = {_toml_list(names)}"]
-        if platform == "github":
-            lines.append("where = { fork = false, archived = false }")
+        where = getattr(platforms.get(platform), "default_where", None)
+        if where:
+            lines.append(f"where = {_toml_inline(where)}")
         tables.append("\n".join(lines))
     return CONFIG_HEADER.format() + "\n" + "\n\n".join(tables) + "\n"
 
