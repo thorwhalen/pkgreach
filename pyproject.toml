@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pkgreach"
-version = "0.0.2"
+version = "0.0.3"
 description = "Track how your packages are really used across PyPI, npm, crates.io and GitHub: downloads against a noise floor, dependents, stars; a weekly GitHub Action keeps the history and publishes a report."
 readme = "README.md"
 requires-python = ">=3.11"
