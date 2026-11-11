@@ -20,16 +20,15 @@ Seams (each one keyword argument, with a working default):
   ``MutableMapping[str, str]``: a folder by default).
 """
 
-from pkgreach.tables import Files
-
 from pkgreach.analyze import summarize
 from pkgreach.collect import RunReport, collect, select_packages, write_manifest
 from pkgreach.config import Selection, Settings, load_settings, settings_from_mapping
 from pkgreach.http import HttpError, make_http
 from pkgreach.platforms import PLATFORMS, Platform
+from pkgreach.render import render_page
 from pkgreach.report import build_site, render_html
 from pkgreach.scaffold import init_repo
-from pkgreach.tables import TABLES
+from pkgreach.tables import TABLES, Files
 
 __all__ = [
     "Files",
@@ -46,6 +45,7 @@ __all__ = [
     "load_settings",
     "make_http",
     "render_html",
+    "render_page",
     "select_packages",
     "settings_from_mapping",
     "summarize",

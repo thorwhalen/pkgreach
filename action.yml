@@ -16,6 +16,9 @@ inputs:
   title:
     description: Title of the report page.
     default: Package reach
+  default-view:
+    description: "View the report page opens on: overview, a platform (pypi, npm, crates, github), all, projects or movers."
+    default: overview
   token:
     description: Token for reading GitHub (public data only; it only raises the rate limit).
     default: ${{ github.token }}
@@ -49,6 +52,7 @@ runs:
         BRANCH: ${{ inputs.data-branch }}
         SITE_DIR: ${{ inputs.site-dir }}
         TITLE: ${{ inputs.title }}
+        DEFAULT_VIEW: ${{ inputs.default-view }}
         COMMIT: ${{ inputs.commit }}
         FAIL_ON_ERRORS: ${{ inputs.fail-on-errors }}
       run: |
@@ -84,5 +88,5 @@ runs:
           fi
           cd - >/dev/null
         fi
-        "$PKGREACH" report --data-dir "$DATA_DIR" --out "$SITE_DIR" --title "$TITLE"
+        "$PKGREACH" report --data-dir "$DATA_DIR" --out "$SITE_DIR" --title "$TITLE" --default-view "$DEFAULT_VIEW"
         exit $status

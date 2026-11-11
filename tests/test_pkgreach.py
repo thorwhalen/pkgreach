@@ -330,3 +330,236 @@ def test_pypi_package_unknown_to_pypistats_is_not_an_error():
 
     got = pypi.fetch({"package": "new-pkg"}, http=http, today=TODAY)
     assert got["downloads"] == [] and got["info"]["latest_version"] == "0.1"
+
+
+# --------------------------------------------------------------------------- #
+# Growth, low base, and the rendered page
+
+
+def test_growth_low_base_and_coverage(tmp_path):
+    """Growth is relative to the platform median, low bases are marked, and a
+    prior window the history does not cover gives no growth."""
+    store = Files(tmp_path / "long")
+    reg = FakeRegistry({"a": 100, "b": 50, "c": 1, "d": 2, "e": 3})
+    kw = dict(platforms={"fake": reg.platform()}, http=None, dependents=_no_deps)
+    collect(_settings(), store=store, now=_now(), **kw)
+    s = summarize(store, today=TODAY)
+    by = {r["package"]: r for r in s["packages"]}
+    p = s["platforms"]["fake"]
+    assert p["signal_x_floor"] == 3.0 and p["unit"] == "packages"
+    # constant counts: about no growth (today is not served), equal to the median
+    assert abs(by["a"]["growth_30d"]) < 0.05
+    assert p["median_growth_30d"] == by["a"]["growth_30d"]
+    assert by["a"]["growth_vs_median_30d"] == 0
+    assert by["a"]["prev_covered"] and not by["a"]["prev_low_base"]
+    # 1 a day is under 3x the floor: a low base, left out of the median
+    assert by["c"]["prev_low_base"]
+
+    # a history of 40 days does not cover the prior 30-day window
+    short = Files(tmp_path / "short")
+    reg = FakeRegistry({"a": 100, "b": 50}, window=40)
+    kw["platforms"] = {"fake": reg.platform()}
+    collect(_settings(), store=short, now=_now(), **kw)
+    s = summarize(short, today=TODAY)
+    assert all(not r["prev_covered"] for r in s["packages"])
+    assert all(r["growth_30d"] is None for r in s["packages"])
+    assert s["platforms"]["fake"]["median_growth_30d"] is None
+
+
+def _summary(**over):
+    """A hand-made summary with one daily and one snapshot platform."""
+    pkg = dict(
+        downloads={"7d": 70, "30d": 300, "90d": 900, "365d": 900},
+        downloads_prev_30d=150,
+        prev_covered=True,
+        prev_low_base=False,
+        has_downloads=True,
+        weekly=[10, 20, 70],
+        growth_30d=1.0,
+        growth_vs_median_30d=0.5,
+        x_floor=30.0,
+        repository="https://github.com/me/x",
+        description="",
+    )
+    rows = [
+        dict(
+            pkg,
+            platform="reg",
+            package='x"><script>alert(1)</script>',
+            url="javascript:alert(1)",
+            description="<img src=x onerror=alert(1)>",
+            metrics={"dependent_packages": {"value": 2, "change_30d": None}},
+        ),
+        dict(pkg, platform="reg", package="y", url="https://reg.org/y", metrics={}),
+        dict(
+            pkg,
+            platform="code",
+            package="me/x",
+            url="https://github.com/me/x",
+            has_downloads=False,
+            weekly=[],
+            metrics={"stars": {"value": 7, "change_30d": 2}},
+        ),
+    ]
+    s = {
+        "as_of": "2026-11-08",
+        "last_run_errors": 1,
+        "attribution": {"downloads": "reg.org"},
+        "platforms": {
+            "reg": dict(
+                title="Reg<istry>",
+                kind="daily",
+                headline=[],
+                unit="packages",
+                packages=2,
+                downloads_30d=600,
+                downloads_prev_30d=300,
+                growth_30d=1.0,
+                median_growth_30d=0.333,
+                noise_floor_30d=10,
+                signal_x_floor=3.0,
+                metric_totals={"dependent_packages": 2},
+            ),
+            "code": dict(
+                title="Code",
+                kind="snapshot",
+                headline=["stars"],
+                unit="repositories",
+                packages=1,
+                downloads_30d=0,
+                downloads_prev_30d=0,
+                noise_floor_30d=None,
+                metric_totals={"stars": 7},
+            ),
+        },
+        "packages": rows,
+    }
+    s.update(over)
+    return s
+
+
+def test_page_escapes_registry_strings_and_links_only_http():
+    from pkgreach import render_page
+
+    page = render_page(_summary(), title="Mine & yours")
+    assert "<script>alert(1)" not in page and "&lt;script&gt;alert(1)" in page
+    assert "<img src=x" not in page
+    assert 'href="javascript:' not in page
+    assert "Reg&lt;istry&gt;" in page and "Reg<istry>" not in page
+    assert "Mine &amp; yours" in page
+    assert "last run: 1 error<" in page  # singular
+
+
+def test_page_has_every_view_and_honours_default_view():
+    from pkgreach import render_page
+    from pkgreach.render import views_of
+
+    s = _summary()
+    assert views_of(s) == ["overview", "reg", "code", "all", "projects", "movers"]
+    page = render_page(s)
+    assert 'data-default="overview"' in page
+    for v in views_of(s):
+        assert f'href="#tab={v}"' in page
+    for token in ["overview", "reg all", "code all", "projects", "movers"]:
+        assert f'data-view="{token}"' in page
+    # the no-JS fallback is the All view: platform tables carry no jsonly class
+    assert 'class="tbl" data-view="reg all"' in page
+    assert 'data-default="code"' in render_page(s, default_view="code")
+    with pytest.raises(ValueError, match="default_view"):
+        render_page(s, default_view="nope")
+
+
+def test_build_site_render_seam_default_view_and_last_run(tmp_path):
+    store = Files(tmp_path / "data")
+    collect(
+        _settings(),
+        store=store,
+        platforms={"fake": FakeRegistry({"a": 5}).platform()},
+        http=None,
+        dependents=_no_deps,
+        now=_now(),
+    )
+    out = Files(tmp_path / "site")
+    build_site(store, out, default_view="movers")
+    assert out["last_run.json"] == store["last_run.json"]
+    assert 'data-default="movers"' in out["index.html"]
+    assert 'href="last_run.json"' in out["index.html"]
+
+    seen = {}
+
+    def render(summary, *, title, default_view):
+        seen.update(title=title, view=default_view)
+        return {"index.html": "<p>hi</p>", "other.html": "<p>2</p>"}
+
+    out2 = Files(tmp_path / "site2")
+    build_site(store, out2, render=render, title="T")
+    assert out2["other.html"] == "<p>2</p>" and seen == {
+        "title": "T",
+        "view": "overview",
+    }
+
+
+def test_cli_default_view(tmp_path):
+    from pkgreach.__main__ import main
+
+    collect(
+        _settings(),
+        store=Files(tmp_path / "data"),
+        platforms={"fake": FakeRegistry({"a": 3}).platform()},
+        http=None,
+        dependents=_no_deps,
+        now=_now(),
+    )
+    site = tmp_path / "site"
+    args = ["report", "--data-dir", str(tmp_path / "data"), "--out", str(site)]
+    assert main([*args, "--default-view", "all"]) == 0
+    assert 'data-default="all"' in (site / "index.html").read_text()
+
+
+def test_page_renders_an_older_summary_and_hostile_metric_names():
+    """A summary from before units and median growth still renders; metric
+    names and platform names are escaped and encoded too."""
+    from pkgreach import render_page
+
+    s = _summary()
+    for p in s["platforms"].values():
+        for k in ("unit", "growth_30d", "median_growth_30d", "signal_x_floor"):
+            p.pop(k, None)
+    for r in s["packages"]:
+        for k in ("prev_covered", "prev_low_base", "growth_vs_median_30d"):
+            r.pop(k, None)
+    assert "<html" in render_page(s)
+
+    s = _summary()
+    code = s["platforms"].pop("code")
+    code["headline"] = ["stars", "<img src=x onerror=alert(1)>"]
+    s["platforms"]["c&d"] = code
+    for r in s["packages"]:
+        if r["platform"] == "code":
+            r["platform"] = "c&d"
+    page = render_page(s)
+    assert "<img src=x" not in page
+    assert 'href="#tab=c%26d"' in page and 'data-tab="c&amp;d"' in page
+
+
+def test_default_view_of_an_absent_known_platform_falls_back():
+    from pkgreach import render_page
+
+    with pytest.warns(UserWarning, match="no npm packages"):
+        page = render_page(_summary(), default_view="npm")
+    assert 'data-default="overview"' in page
+
+
+def test_render_seam_gets_only_the_options_it_names(tmp_path):
+    store = Files(tmp_path / "data")
+    collect(
+        _settings(),
+        store=store,
+        platforms={"fake": FakeRegistry({"a": 5}).platform()},
+        http=None,
+        dependents=_no_deps,
+        now=_now(),
+    )
+    out = Files(tmp_path / "site")
+    build_site(store, out, render=lambda summary: f"<p>{len(summary['packages'])}</p>")
+    assert out["index.html"] == "<p>1</p>"

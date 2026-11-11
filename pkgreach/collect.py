@@ -24,17 +24,17 @@ from pkgreach.platforms import PLATFORMS, Platform
 from pkgreach.platforms.ecosystems import dependents as ecosystems_dependents
 from pkgreach.tables import (
     DATA_LICENSE,
+    DATA_LICENSE_KEY,
+    LAST_RUN_KEY,
+    MANIFEST_KEY,
+    SCHEMA_VERSION,
+    TABLES,
     Files,
     dump_csv,
     parse_csv,
     read_table,
     table_files,
     write_rows,
-    DATA_LICENSE_KEY,
-    LAST_RUN_KEY,
-    MANIFEST_KEY,
-    SCHEMA_VERSION,
-    TABLES,
 )
 
 _log = logging.getLogger("pkgreach")

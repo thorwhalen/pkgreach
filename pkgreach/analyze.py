@@ -12,6 +12,13 @@ you follow on that platform that were downloaded at all (an estimate of what
 an unused package of yours gets). ``x_floor`` is a package's 30-day downloads over that floor; dependents
 and stars, which a bot does not create, are reported next to it.
 
+Growth over the prior 30 days is also mostly not people: a platform whose bots
+all doubled their pace doubles every package. So each package's growth is also
+given relative to its platform's median (``growth_vs_median_30d``), a package
+whose prior window was under ``signal_x_floor`` times the floor is marked
+``prev_low_base`` (its percentages are noise), and growth is ``None`` when the
+history does not cover the whole prior window.
+
 On PyPI the ``without_mirrors`` series (from pypistats.org) is used when it
 exists, since mirror traffic is pure noise.
 """
@@ -22,7 +29,7 @@ import json
 from collections import defaultdict
 from collections.abc import Mapping, MutableMapping
 from datetime import date, timedelta
-from statistics import quantiles
+from statistics import median, quantiles
 from typing import Any
 
 from pkgreach.platforms import PLATFORMS, Platform
@@ -31,6 +38,8 @@ from pkgreach.tables import LAST_RUN_KEY, TABLES, read_table
 #: Windows (days) the summary totals over.
 WINDOWS = (7, 30, 90, 365)
 DFLT_FLOOR_QUANTILE = 0.25
+#: How many times the noise floor a 30-day count must reach to count as signal.
+DFLT_SIGNAL_X_FLOOR = 3.0
 #: Where the numbers come from, and on what terms (ecosyste.ms is CC BY-SA 4.0).
 ATTRIBUTION = {
     "downloads": "pypistats.org, api.npmjs.org, crates.io",
@@ -147,6 +156,33 @@ def _ends(packages, daily) -> dict[str, date]:
     return ends
 
 
+def _followed_from(info: Mapping, days: Mapping[str, int]) -> str:
+    """The first day a package's counts can be trusted to cover: the later of
+    the source's first day (``history_from``) and the package's creation, or,
+    when the registry gives no creation date, its first day with downloads
+    (``""``: unknown)."""
+    born = str(info.get("created") or "")[:10] or (min(days) if days else "")
+    return max(str(info.get("history_from") or ""), born)
+
+
+def _covers(start_day: str, end: date, n: int) -> bool:
+    """Whether a history starting on ``start_day`` covers the ``n`` days to
+    ``end`` (unknown start: assumed covered, as the stored days are all we have)."""
+    start = (end - timedelta(days=n - 1)).isoformat()
+    return not start_day or start_day <= start
+
+
+def _median_growth(rows: list[Mapping]) -> float | None:
+    """The median growth of the packages whose growth means something: a
+    covered prior window above the low-base threshold."""
+    gs = [
+        r["growth_30d"]
+        for r in rows
+        if r["growth_30d"] is not None and not r["prev_low_base"]
+    ]
+    return round(median(gs), 3) if gs else None
+
+
 def _run_errors(store: MutableMapping) -> int | None:
     try:
         return len(json.loads(store[LAST_RUN_KEY]).get("errors", {}))
@@ -160,12 +196,15 @@ def summarize(
     platforms: Mapping[str, Platform] = PLATFORMS,
     today: date | None = None,
     floor_quantile: float = DFLT_FLOOR_QUANTILE,
+    signal_x_floor: float = DFLT_SIGNAL_X_FLOOR,
 ) -> dict[str, Any]:
     """A JSON-ready summary of the history in ``store``.
 
     ``platforms`` supplies how each platform is presented (title, kind,
     headline metrics, preferred download series); a platform in the history
     but not in ``platforms`` is shown as a daily-downloads platform.
+    ``signal_x_floor``: below this many times the noise floor, a 30-day count
+    is treated as noise (``prev_low_base``, and the report dims the row).
     """
 
     def spec(name: str) -> Platform:
@@ -196,6 +235,7 @@ def summarize(
             "last_seen": info.get("last_seen", ""),
             "downloads": {f"{n}d": _window(days, end, n) for n in WINDOWS},
             "downloads_prev_30d": _window(days, end - timedelta(days=30), 30),
+            "prev_covered": _covers(_followed_from(info, days), end, 60),
             "downloads_collected": sum(days.values()),
             "has_downloads": bool(days or info.get("history_from")),
             "weekly": _weekly(days, end, SPARK_WEEKS) if days else [],
@@ -203,7 +243,9 @@ def summarize(
         }
         prev = row["downloads_prev_30d"]
         row["growth_30d"] = (
-            round(row["downloads"]["30d"] / prev - 1, 3) if prev else None
+            round(row["downloads"]["30d"] / prev - 1, 3)
+            if prev and row["prev_covered"]
+            else None
         )
         rows.append(row)
 
@@ -220,14 +262,36 @@ def summarize(
                 if floor and r["has_downloads"]
                 else None
             )
+            r["prev_low_base"] = bool(
+                floor
+                and r["has_downloads"]
+                and r["downloads_prev_30d"] < signal_x_floor * floor
+            )
+        med = _median_growth(mine)
+        for r in mine:
+            g = r["growth_30d"]
+            r["growth_vs_median_30d"] = (
+                round((1 + g) / (1 + med) - 1, 3)
+                if g is not None and med is not None and med > -1
+                else None
+            )
+        total = sum(r["downloads"]["30d"] for r in mine)
+        # growth over the packages followed through both windows only
+        covered = [r for r in mine if r["prev_covered"]]
+        cur_c = sum(r["downloads"]["30d"] for r in covered)
+        prev_c = sum(r["downloads_prev_30d"] for r in covered)
         by_platform[platform] = {
             "title": p.title or platform,
             "kind": p.kind,
             "headline": list(p.headline),
+            "unit": p.unit,
             "packages": len(mine),
-            "downloads_30d": sum(r["downloads"]["30d"] for r in mine),
+            "downloads_30d": total,
             "downloads_prev_30d": sum(r["downloads_prev_30d"] for r in mine),
+            "growth_30d": round(cur_c / prev_c - 1, 3) if prev_c else None,
+            "median_growth_30d": med,
             "noise_floor_30d": floor if with_dl else None,
+            "signal_x_floor": signal_x_floor,
             "metric_totals": {
                 m: sum(r["metrics"].get(m, {}).get("value", 0) for r in mine)
                 for m in sorted({m for r in mine for m in r["metrics"]})

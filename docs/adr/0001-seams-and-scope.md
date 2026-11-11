@@ -29,12 +29,12 @@ What the platforms offer, verified live on 2026-11-11, is in [docs/research/plat
 | 1 | platform: `collect(platforms=)` and `summarize(platforms=)`, a mapping of `Platform` (how to list and fetch, plus how to present: `title`, `kind` daily or snapshot, `headline` metrics, `preferred_series`, `ecosystem`, `normalize`, `prune_unlisted`) | PyPI, npm, crates.io, GitHub | Hugging Face, conda-forge, Docker Hub, Open VSX, JSR (research §6): snapshot platforms need no change to the analysis or the page |
 | 2 | selection: per-platform `Selection(users, packages, exclude, where)` in `pkgreach.toml`, plus `collect(select=)` | listed packages matching `where`, plus named ones, minus globs | the request ("list? pattern? characteristics?") |
 | 3 | dependents: `collect(dependents=)`, keyed by ecosystem (purl type) | ecosyste.ms | deps.dev, crates.io reverse dependencies |
-| 4 | analysis: `build_site(analyze=)` | `summarize` (per-platform windows ending at its last complete day, growth, noise floor) | ClickHouse PyPI breakdowns by installer/OS (research §1) |
+| 4 | analysis and rendering: `build_site(analyze=, render=)` | `summarize` (per-platform windows ending at its last complete day, growth against the platform median, low-base marking, noise floor); `render_page` (one `index.html` with client-side views Overview, one tab per platform, All, Projects, Movers; `default_view=` picks the one a bare URL opens, also `--default-view` and the Action's `default-view`) | ClickHouse PyPI breakdowns by installer/OS (research §1); for rendering, any `render(summary, *, title, default_view)` returning the HTML or a mapping of files (a multi-page site, a Markdown digest) |
 | 5 | target: `store=` / `out=` (`MutableMapping[str, str]`), and the Action's `data-branch` / `site-dir` | a folder; history on the `pkgreach-data` branch; site on GitHub Pages | any dol store, any static host |
 
 The transport (`http=`) is also injectable, for tests and caches; credentials reach it as `make_http(headers_by_host=)`, never from inside a platform.
 
-`NOT seams:` the CSV layout (ghtraffic's), the report's HTML and CSS (a `render=` seam waits for a second renderer), CLI parsing, the noise-floor quantile (a keyword argument of `summarize`, not a pluggable strategy).
+`NOT seams:` the CSV layout (csvledger's), the default page's CSS and views (knobs of `render_page`, not pluggable parts), CLI parsing, the noise-floor quantile (a keyword argument of `summarize`, not a pluggable strategy).
 
 **Surfaces:** `pkgreach/tools.py` holds the operations as plain functions, JSON-able in and out (`collect`, `report`, `init`), and is the single source for every surface. Built: the CLI (`cw.dispatch` over `tools.COMMANDS`) and a composite GitHub Action. Not built: MCP (it would reference `pkgreach.tools:collect` etc. with no core change), HTTP, an agent skill. The author's own workflow is generated from the same template as `pkgreach init`'s (a test keeps them identical).
 

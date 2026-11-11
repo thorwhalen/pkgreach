@@ -6,7 +6,7 @@ How are your packages really used? `pkgreach` tracks your packages on PyPI, npm,
 
 ## Why
 
-Registries keep a few months of daily download counts (crates.io 90 days, PyPI about 6 months, npm 18 months), and none of them separates people from robots: mirrors, CI pipelines and scanners download every release of every package. So `pkgreach` reports downloads against a **noise floor** (what your least-used packages get), next to the signals a robot does not create: **dependents** (packages and repositories that declare yours, from [ecosyste.ms](https://ecosyste.ms)), and **stars and forks** of your public repositories.
+Registries keep a few months of daily download counts (crates.io 90 days, PyPI about 6 months, npm 18 months), and none of them separates people from robots: mirrors, CI pipelines and scanners download every release of every package. So `pkgreach` reports downloads against a **noise floor** (what your least-used packages get), next to the signals a robot does not create: **dependents** (packages and repositories that declare yours, from [ecosyste.ms](https://ecosyste.ms)), and **stars and forks** of your public repositories. Growth is shown against the platform's median package (when robot traffic doubles across a registry, every package doubles), and a package that was in the noise last month is marked *low base* rather than given a +900%.
 
 ## Quick start: a weekly GitHub Action
 
@@ -31,6 +31,8 @@ The workflow is three steps:
     path: ${{ steps.reach.outputs.site-dir }}
 - uses: actions/deploy-pages@v4
 ```
+
+The action's inputs (all optional): `config`, `data-branch`, `site-dir`, `title`, `default-view` (the view the page opens on: `overview`, a platform such as `pypi`, `all`, `projects` or `movers`), `token`, `commit`, `fail-on-errors`; see [action.yml](action.yml).
 
 ## Configuration
 
@@ -61,7 +63,8 @@ The Action's inputs: `config`, `data-branch` (default `pkgreach-data`), `site-di
 
 ```bash
 pkgreach collect --config pkgreach.toml   # into ~/.local/share/pkgreach/data
-pkgreach report --out site                # site/index.html and site/summary.json
+pkgreach report --out site                # site/index.html, summary.json, last_run.json
+pkgreach report --out site --default-view pypi   # open on the PyPI tab
 pkgreach init . --pypi me --github me my-org   # a config and a weekly workflow
 ```
 
@@ -78,6 +81,7 @@ build_site(Files("data"), Files("site"))
 - `collect(select=lambda platform, record: ...)`: any selection a TOML file cannot express.
 - `collect(dependents=...)`: another source of dependents.
 - `build_site(analyze=...)`: your own summary; `summary.json` is the default one, for any other tool.
+- `build_site(render=...)`: your own page from the same summary: any `render(summary, *, title, default_view)` returning the HTML (or a mapping of file names to contents, for several pages). The default, `render_page`, is one page with views you switch in place: **Overview** (platform cards, most used, movers, most depended on), one tab per platform (search, sort, noise hidden), **All** (every table, full length; also what a browser without JavaScript shows), **Projects** (packages joined to their repository) and **Movers**. `default_view=` (CLI `--default-view`, Action input `default-view`) picks the one the page opens on; every view has its own link (`#tab=pypi&sort=-chg`).
 - `make_http(headers_by_host=...)`: credentials per host (the CLI gives GitHub `GITHUB_TOKEN` or `GH_TOKEN`).
 - `store=` / `out=`: any `MutableMapping[str, str]`, such as a [dol](https://github.com/i2mint/dol) store (S3, a database).
 
