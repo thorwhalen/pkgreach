@@ -1,0 +1,35 @@
+# The author's own weekly report: https://thorwhalen.github.io/pkgreach/
+# Settings: pkgreach.toml (public account names only). No secret needed:
+# everything collected is public, and the history goes to the pkgreach-data
+# branch of this repository with the workflow's own token.
+#
+# This is the same workflow `pkgreach init` writes, except that it runs this
+# repository's own action (`uses: ./`) instead of a pinned release.
+name: Weekly report
+on:
+  schedule:
+    - cron: "23 5 * * 0"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: pkgreach
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        id: reach
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ steps.reach.outputs.site-dir }}
+      - uses: actions/deploy-pages@v4
+        id: deploy
