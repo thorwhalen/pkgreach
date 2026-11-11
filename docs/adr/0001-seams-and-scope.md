@@ -16,7 +16,7 @@ What the platforms offer, verified live on 2026-11-11, is in [docs/research/plat
 
 ## Decision
 
-**A new package, `pkgreach`, depending on `ghtraffic`; not a rename of ghtraffic.** ghtraffic's name, PyPI project, Action tag, Pages dashboard and private data repository are all GitHub-traffic specific and in use. pkgreach reuses its table store (`ghtraffic.tables`: year-partitioned long-form CSV, idempotent merges, a `MutableMapping` store), which gained a generic `entity=` for change-only tables to serve this second consumer (thorwhalen/ghtraffic#6). Name checked free on PyPI, npm, crates.io and GitHub on 2026-11-11.
+**A new package, `pkgreach`, not a rename of ghtraffic.** ghtraffic's name, PyPI project, Action tag, Pages dashboard and private data repository are all GitHub-traffic specific and in use. pkgreach reuses its table store (then `ghtraffic.tables`, now the `csvledger` package: year-partitioned long-form CSV, idempotent merges, a `MutableMapping` store), which gained a generic `entity=` for change-only tables to serve this second consumer (thorwhalen/ghtraffic#6). Name checked free on PyPI, npm, crates.io and GitHub on 2026-11-11.
 
 **Fleet search** (2026-11-11): `yp` lists a PyPI account by scraping `pypi.org/user/`, now behind a JavaScript challenge, and needs bs4: not used, the XML-RPC listing here is its replacement (issue filed on yp). `cw` is used for the CLI. `dol`'s `Files` duplicates ghtraffic's: kept ghtraffic's for a zero-dependency Action install, and the store's extraction is filed on ghtraffic. No fleet package reads download counts or dependents.
 
@@ -54,5 +54,5 @@ The transport (`http=`) is also injectable, for tests and caches; credentials re
 - PyPI listing relies on the XML-RPC `user_packages` call, deprecated but answered. If it goes, ecosyste.ms `/maintainers/{user}/packages` is the fallback, at the `list_packages` boundary.
 - pypistats' `recent` totals disagree with its own daily series; we only use the daily series.
 - Before a package's first collection, history is limited to what the registry still has (npm 18 months, PyPI about 6, crates.io 3). ClickHouse's public PyPI dataset could backfill PyPI from 2020: a candidate for the analysis or platform seam, not v1.
-- The table store's home is ghtraffic for now; all imports of it go through `pkgreach/tables.py`, so extracting it into its own package (filed on ghtraffic) changes one file.
+- Update 2026-11-11: the table store now lives in its own package, [csvledger](https://github.com/thorwhalen/csvledger) (extracted from ghtraffic, thorwhalen/ghtraffic#7); pkgreach depends on it instead of ghtraffic, through `pkgreach/tables.py` only.
 - The private traffic view and this public view are two pages for now. Joining them (the ghtraffic dashboard reading this history, or this report linking a private section) is a follow-up.

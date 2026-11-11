@@ -4,7 +4,7 @@ import json
 from datetime import date, datetime, timedelta, timezone
 
 import pytest
-from ghtraffic.tables import Files, read_table
+from pkgreach.tables import Files, read_table
 
 from pkgreach import (
     TABLES,
