@@ -190,6 +190,7 @@ github,thorwhalen/correspond,https://github.com/thorwhalen/correspond,https://gi
 github,thorwhalen/creel,https://github.com/thorwhalen/creel,https://github.com/thorwhalen/creel,Extract linked information from a mess or sources,,2026-06-16,,2026-11-11,2026-11-11
 github,thorwhalen/crowsnest,https://github.com/thorwhalen/crowsnest,https://github.com/thorwhalen/crowsnest,"One session that watches your other Claude Code sessions: who is busy, who is waiting on you, what each just said, and how to ask one directly",,2026-09-06,,2026-11-11,2026-11-11
 github,thorwhalen/cryptology,https://github.com/thorwhalen/cryptology,https://github.com/thorwhalen/cryptology,"Learn cryptology: classical ciphers and how to break them, explained for curious young minds. Guides, tools and agent skills.",,2026-11-05,,2026-11-11,2026-11-11
+github,thorwhalen/csvledger,https://github.com/thorwhalen/csvledger,https://github.com/thorwhalen/csvledger,Long-form CSV tables that merge idempotently: a git-friendly history store with no dependencies.,,2026-11-11,,2026-11-11,2026-11-11
 github,thorwhalen/cult,https://github.com/thorwhalen/cult,https://github.com/thorwhalen/cult,Religious texts search engine,,2020-10-12,,2026-11-11,2026-11-11
 github,thorwhalen/denote,https://github.com/thorwhalen/denote,https://github.com/thorwhalen/denote,"Portal and facade for audio-to-symbol tools (MIDI, chords, pitch from audio)",,2026-03-16,,2026-11-11,2026-11-11
 github,thorwhalen/dn,https://github.com/thorwhalen/dn,https://github.com/thorwhalen/dn,Tools for markdown parsing and generation,,2025-05-22,,2026-11-11,2026-11-11
@@ -463,6 +464,7 @@ pypi,couchdol,https://pypi.org/project/couchdol/,https://github.com/i2mint/couch
 pypi,creek,https://pypi.org/project/creek/,https://github.com/i2mint/creek,Simple streams facade,0.1.37,2020-12-14,2026-04-08,2026-11-11,2026-11-11
 pypi,creel,https://pypi.org/project/creel/,https://github.com/thorwhalen/creel,Extract linked information from a mess or sources,0.1.6,2026-06-16,2026-06-16,2026-11-11,2026-11-11
 pypi,crowsnest,https://pypi.org/project/crowsnest/,https://github.com/thorwhalen/crowsnest,"One session that watches your other Claude Code sessions: who is busy, who is waiting on you, what each one just said, and how to ask one directly",0.0.110,2026-09-06,2026-09-06,2026-11-11,2026-11-11
+pypi,csvledger,https://pypi.org/project/csvledger/,https://github.com/thorwhalen/csvledger,"Long-form CSV tables that merge idempotently (max, replace-group, change-only, upsert), partitioned by year, in any MutableMapping store: a git-friendly history store with no dependencies.",0.0.2,2026-11-11,,2026-11-11,2026-11-11
 pypi,cult,https://pypi.org/project/cult/,https://github.com/thorwhalen/cult,Religious texts search engine,0.0.4,2020-10-13,2026-04-08,2026-11-11,2026-11-11
 pypi,cutan,https://pypi.org/project/cutan/,https://github.com/thorwhalen/cutan,"Cut-out animation for an: rigged characters, faces, lip-sync and styles, as a genre package on the an core.",0.0.118,2026-10-02,2026-10-02,2026-11-11,2026-11-11
 pypi,cw,https://pypi.org/project/cw/,https://github.com/i2mint/cw,Command line Wizard - turn your Python functions into a CLI,0.1.14,2021-01-06,2026-04-08,2026-11-11,2026-11-11
@@ -481,7 +483,7 @@ pypi,ductus,https://pypi.org/project/ductus/,https://github.com/thorwhalen/ductu
 pypi,dynamodol,https://pypi.org/project/dynamodol/,https://github.com/i2mint/dynamodol,dynamodb (through boto3) with a simple (dict-like or list-like) interface,0.1.15,2021-04-08,2026-04-08,2026-11-11,2026-11-11
 pypi,ef,https://pypi.org/project/ef/,https://github.com/thorwhalen/ef,Embeddings Flow -- Tools for workflows involving semantic embeddings,0.1.28,2021-01-06,2026-04-08,2026-11-11,2026-11-11
 pypi,ek,https://pypi.org/project/ek/,https://github.com/thorwhalen/ek,ek (Evaluation Kit) -- a framework for building Knowledge Evaluation systems (evaluating information-extraction outputs; OCR as the noisiest special case),0.1.18,2021-01-06,2026-04-08,2026-11-11,2026-11-11
-pypi,ek-rs,,,,,,,2026-11-11,2026-11-11
+pypi,ek-rs,https://pypi.org/project/ek-rs/,https://github.com/thorwhalen/ek,Optional native (Rust) kernels for ek: build from the ek repository (not yet on PyPI),0.0.1,2026-11-11,,2026-11-11,2026-11-11
 pypi,elections,https://pypi.org/project/elections/,https://github.com/thorwhalen/elections,A unified Python interface to multiple election data sources from around the world.,0.0.4,2020-11-07,2026-04-08,2026-11-11,2026-11-11
 pypi,embody,https://pypi.org/project/embody/,https://github.com/i2mint/embody,Generate templated objects,0.1.10,2021-10-04,2026-04-08,2026-11-11,2026-11-11
 pypi,enlace,https://pypi.org/project/enlace/,https://github.com/i2mint/enlace,"Serve all your web apps from a single process — they don't import it, they don't know it's there",0.1.67,2026-04-14,2026-04-14,2026-11-11,2026-11-11
@@ -505,7 +507,7 @@ pypi,funds,https://pypi.org/project/funds/,https://github.com/thorwhalen/funds,H
 pypi,garble,https://pypi.org/project/garble/,https://github.com/thorwhalen/garble,Make bags of words and do stuff with them for make benefit,0.0.5,2021-03-04,2026-04-08,2026-11-11,2026-11-11
 pypi,ge,https://pypi.org/project/ge/,https://github.com/thorwhalen/ge,Github Expert - Agentic tools for github,0.1.19,2021-01-06,2026-04-08,2026-11-11,2026-11-11
 pypi,ghir,https://pypi.org/project/ghir/,https://github.com/i2mint/ghir,"Search your GitHub repos (cloned or not) as an ir corpus: locations, extraction, cache, ranking.",0.0.3,2026-10-23,2026-10-23,2026-11-11,2026-11-11
-pypi,ghtraffic,https://pypi.org/project/ghtraffic/,https://github.com/thorwhalen/ghtraffic,"Collect, accumulate and explore GitHub traffic and insights (views, clones, referrers, paths, stars) across all your repos and orgs, with a GitHub Action and a static dashboard.",0.0.4,2026-11-10,2026-11-10,2026-11-11,2026-11-11
+pypi,ghtraffic,https://pypi.org/project/ghtraffic/,https://github.com/thorwhalen/ghtraffic,"Collect, accumulate and explore GitHub traffic and insights (views, clones, referrers, paths, stars) across all your repos and orgs, with a GitHub Action and a static dashboard.",0.0.5,2026-11-10,2026-11-10,2026-11-11,2026-11-11
 pypi,git2py,https://pypi.org/project/git2py/,https://github.com/i2mint/git2py,Mapping git operation to a dict-like Data Object Layer,0.0.8,2021-04-23,2026-04-08,2026-11-11,2026-11-11
 pypi,graze,https://pypi.org/project/graze/,https://github.com/thorwhalen/graze,Cache (a tiny part of) the internet,0.1.47,2020-10-03,2026-04-08,2026-11-11,2026-11-11
 pypi,griot,https://pypi.org/project/griot/,https://github.com/thorwhalen/griot,Research a subject and write a spoken commentary script for it — reusable writers for braidio productions,0.0.5,2026-09-25,2026-09-25,2026-11-11,2026-11-11
@@ -604,6 +606,7 @@ pypi,penlike,https://pypi.org/project/penlike/,https://github.com/thorwhalen/pen
 pypi,penult,https://pypi.org/project/penult/,https://github.com/thorwhalen/penult,"From an idea to a publication draft: research, write, style, illustrate, and post the draft for review",0.0.3,2026-11-06,2026-11-06,2026-11-11,2026-11-11
 pypi,peruse,https://pypi.org/project/peruse/,https://github.com/otosense/peruse,Explore a waveform with slang,0.0.13,2021-01-12,2026-04-08,2026-11-11,2026-11-11
 pypi,pipoke,https://pypi.org/project/pipoke/,https://github.com/thorwhalen/pipoke,Utils to acquire stuff from pypi and interrogate it,0.0.23,2020-05-07,2026-04-08,2026-11-11,2026-11-11
+pypi,pkgreach,https://pypi.org/project/pkgreach/,https://github.com/thorwhalen/pkgreach,"Track how your packages are really used across PyPI, npm, crates.io and GitHub: downloads against a noise floor, dependents, stars; a weekly GitHub Action keeps the history and publishes a report.",0.0.5,2026-11-11,,2026-11-11,2026-11-11
 pypi,plcstream2py,https://pypi.org/project/plcstream2py/,https://github.com/i2mint/plcstream2py,stream2py interface to PLC data,0.0.7,2021-11-08,2026-04-08,2026-11-11,2026-11-11
 pypi,plunk,https://pypi.org/project/plunk/,https://github.com/thorwhalen/plunk,Miscellaneous stuff I plunk here until they grow up to a repo of their own,0.3.1,2022-01-26,2026-04-08,2026-11-11,2026-11-11
 pypi,poclab,https://pypi.org/project/poclab/,https://github.com/i2mint/poclab,A place for POCs to be born and toddler around until they can walk on their own,0.0.6,2025-01-21,2026-04-08,2026-11-11,2026-11-11
@@ -695,5 +698,5 @@ pypi,xcosmo,https://pypi.org/project/xcosmo/,https://github.com/cosmograph-org/x
 pypi,xdol,https://pypi.org/project/xdol/,https://github.com/i2mint/xdol,Extended Data Object Layers - dol-based tools,0.1.39,2024-01-03,2026-04-09,2026-11-11,2026-11-11
 pypi,xv,https://pypi.org/project/xv/,https://github.com/thorwhalen/xv,Access to arxiv data,0.1.3,2021-01-06,2026-04-08,2026-11-11,2026-11-11
 pypi,yb,https://pypi.org/project/yb/,https://github.com/thorwhalen/yb,"Streamlining media publishing: prepare, upload, and edit videos (YouTube) and podcasts",0.1.36,2021-01-06,2026-04-08,2026-11-11,2026-11-11
-pypi,yp,https://pypi.org/project/yp/,https://github.com/thorwhalen/yp,A mapping view to pypi projects,0.0.12,2021-01-06,2026-04-08,2026-11-11,2026-11-11
+pypi,yp,https://pypi.org/project/yp/,https://github.com/thorwhalen/yp,A mapping view to pypi projects,0.0.13,2021-01-06,2026-04-08,2026-11-11,2026-11-11
 pypi,zu,https://pypi.org/project/zu/,https://github.com/i2mint/zu,Useful Layers for Data Access,0.0.2,2020-09-26,2026-04-08,2026-11-11,2026-11-11

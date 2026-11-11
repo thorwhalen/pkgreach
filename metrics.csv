@@ -468,7 +468,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/anima,open_issues,0
 2026-11-11,github,thorwhalen/anima,stars,0
 2026-11-11,github,thorwhalen/annals,forks,0
-2026-11-11,github,thorwhalen/annals,open_issues,9
+2026-11-11,github,thorwhalen/annals,open_issues,10
 2026-11-11,github,thorwhalen/annals,stars,0
 2026-11-11,github,thorwhalen/antescofo,forks,0
 2026-11-11,github,thorwhalen/antescofo,open_issues,0
@@ -492,7 +492,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/app_mood,open_issues,0
 2026-11-11,github,thorwhalen/app_mood,stars,0
 2026-11-11,github,thorwhalen/arioso,forks,0
-2026-11-11,github,thorwhalen/arioso,open_issues,5
+2026-11-11,github,thorwhalen/arioso,open_issues,6
 2026-11-11,github,thorwhalen/arioso,stars,0
 2026-11-11,github,thorwhalen/article,forks,0
 2026-11-11,github,thorwhalen/article,open_issues,4
@@ -572,6 +572,9 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/cryptology,forks,0
 2026-11-11,github,thorwhalen/cryptology,open_issues,1
 2026-11-11,github,thorwhalen/cryptology,stars,0
+2026-11-11,github,thorwhalen/csvledger,forks,0
+2026-11-11,github,thorwhalen/csvledger,open_issues,0
+2026-11-11,github,thorwhalen/csvledger,stars,0
 2026-11-11,github,thorwhalen/cult,forks,0
 2026-11-11,github,thorwhalen/cult,open_issues,0
 2026-11-11,github,thorwhalen/cult,stars,1
@@ -630,7 +633,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/ge,open_issues,1
 2026-11-11,github,thorwhalen/ge,stars,0
 2026-11-11,github,thorwhalen/ghtraffic,forks,0
-2026-11-11,github,thorwhalen/ghtraffic,open_issues,4
+2026-11-11,github,thorwhalen/ghtraffic,open_issues,3
 2026-11-11,github,thorwhalen/ghtraffic,stars,0
 2026-11-11,github,thorwhalen/glossa,forks,1
 2026-11-11,github,thorwhalen/glossa,open_issues,2
@@ -1023,7 +1026,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/xv,open_issues,0
 2026-11-11,github,thorwhalen/xv,stars,0
 2026-11-11,github,thorwhalen/yp,forks,0
-2026-11-11,github,thorwhalen/yp,open_issues,1
+2026-11-11,github,thorwhalen/yp,open_issues,0
 2026-11-11,github,thorwhalen/yp,stars,0
 2026-11-11,github,thorwhalen/zod-collection-ui,forks,0
 2026-11-11,github,thorwhalen/zod-collection-ui,open_issues,0
@@ -1275,6 +1278,9 @@ date,platform,package,metric,value
 2026-11-11,pypi,crowsnest,dependent_packages,0
 2026-11-11,pypi,crowsnest,dependent_repos,0
 2026-11-11,pypi,crowsnest,versions,109
+2026-11-11,pypi,csvledger,dependent_packages,0
+2026-11-11,pypi,csvledger,dependent_repos,0
+2026-11-11,pypi,csvledger,versions,1
 2026-11-11,pypi,cult,dependent_packages,0
 2026-11-11,pypi,cult,dependent_repos,1
 2026-11-11,pypi,cult,versions,4
@@ -1329,6 +1335,9 @@ date,platform,package,metric,value
 2026-11-11,pypi,ek,dependent_packages,0
 2026-11-11,pypi,ek,dependent_repos,1
 2026-11-11,pypi,ek,versions,23
+2026-11-11,pypi,ek-rs,dependent_packages,0
+2026-11-11,pypi,ek-rs,dependent_repos,0
+2026-11-11,pypi,ek-rs,versions,1
 2026-11-11,pypi,elections,dependent_packages,0
 2026-11-11,pypi,elections,dependent_repos,1
 2026-11-11,pypi,elections,versions,3
@@ -1398,7 +1407,7 @@ date,platform,package,metric,value
 2026-11-11,pypi,ghir,versions,2
 2026-11-11,pypi,ghtraffic,dependent_packages,0
 2026-11-11,pypi,ghtraffic,dependent_repos,0
-2026-11-11,pypi,ghtraffic,versions,3
+2026-11-11,pypi,ghtraffic,versions,4
 2026-11-11,pypi,git2py,dependent_packages,0
 2026-11-11,pypi,git2py,dependent_repos,1
 2026-11-11,pypi,git2py,versions,6
@@ -1681,6 +1690,9 @@ date,platform,package,metric,value
 2026-11-11,pypi,pipoke,dependent_packages,0
 2026-11-11,pypi,pipoke,dependent_repos,1
 2026-11-11,pypi,pipoke,versions,21
+2026-11-11,pypi,pkgreach,dependent_packages,0
+2026-11-11,pypi,pkgreach,dependent_repos,0
+2026-11-11,pypi,pkgreach,versions,4
 2026-11-11,pypi,plcstream2py,dependent_packages,0
 2026-11-11,pypi,plcstream2py,dependent_repos,1
 2026-11-11,pypi,plcstream2py,versions,6
@@ -1954,7 +1966,7 @@ date,platform,package,metric,value
 2026-11-11,pypi,yb,versions,38
 2026-11-11,pypi,yp,dependent_packages,1
 2026-11-11,pypi,yp,dependent_repos,1
-2026-11-11,pypi,yp,versions,10
+2026-11-11,pypi,yp,versions,11
 2026-11-11,pypi,zu,dependent_packages,1
 2026-11-11,pypi,zu,dependent_repos,1
 2026-11-11,pypi,zu,versions,2
