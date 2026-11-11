@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "updated": "2026-11-11",
+  "tables": {
+    "downloads": {
+      "files": [
+        "downloads/2026.csv"
+      ],
+      "columns": [
+        "date",
+        "platform",
+        "package",
+        "series",
+        "count"
+      ],
+      "key": [
+        "date",
+        "platform",
+        "package",
+        "series"
+      ],
+      "description": "Daily downloads per package; days with zero downloads are absent (from the package's history_from on, absence means zero)."
+    },
+    "metrics": {
+      "files": [
+        "metrics.csv"
+      ],
+      "columns": [
+        "date",
+        "platform",
+        "package",
+        "metric",
+        "value"
+      ],
+      "key": [
+        "date",
+        "platform",
+        "package",
+        "metric"
+      ],
+      "description": "Slowly changing numbers (dependents, stars, forks, versions, total downloads), one row per change."
+    },
+    "packages": {
+      "files": [
+        "packages.csv"
+      ],
+      "columns": [
+        "platform",
+        "package",
+        "url",
+        "repository",
+        "description",
+        "latest_version",
+        "created",
+        "history_from",
+        "first_seen",
+        "last_seen"
+      ],
+      "key": [
+        "platform",
+        "package"
+      ],
+      "description": "Current metadata of every package seen."
+    },
+    "runs": {
+      "files": [
+        "runs.csv"
+      ],
+      "columns": [
+        "started_at",
+        "duration_s",
+        "platform",
+        "packages",
+        "errors"
+      ],
+      "key": [
+        "started_at",
+        "platform"
+      ],
+      "description": "One row per collection run and platform."
+    }
+  }
+}

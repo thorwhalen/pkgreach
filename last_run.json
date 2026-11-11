@@ -1,0 +1,14 @@
+{
+  "started_at": "2026-11-11T12:45:24+00:00",
+  "duration_s": 491.8,
+  "packages": {
+    "pypi": 284,
+    "npm": 70,
+    "crates": 0,
+    "github": 343
+  },
+  "errors": {
+    "pypi:ek-rs": "HttpError: HTTP 404 on https://pypistats.org/api/packages/ek-rs/overall: Not Found"
+  },
+  "files_changed": 4
+}
