@@ -19,7 +19,8 @@ from pkgreach.config import DFLT_CONFIG_FILENAME, DFLT_DATA_DIR, load_settings
 from pkgreach.http import make_http
 from pkgreach.platforms import PLATFORMS
 from pkgreach.platforms.github import auth_headers, token_from_env
-from pkgreach.report import DFLT_TITLE, build_site
+from pkgreach.render import DFLT_TITLE, DFLT_VIEW
+from pkgreach.report import build_site
 from pkgreach.scaffold import DFLT_CRON, default_action_ref, init_repo
 from pkgreach.tables import Files
 
@@ -53,10 +54,23 @@ def collect(
 
 
 def report(
-    *, data_dir: str = str(DFLT_DATA_DIR), out: str = "site", title: str = DFLT_TITLE
+    *,
+    data_dir: str = str(DFLT_DATA_DIR),
+    out: str = "site",
+    title: str = DFLT_TITLE,
+    default_view: str = DFLT_VIEW,
 ) -> dict:
-    """Write the report site (``index.html``, ``summary.json``) into ``out``."""
-    s = build_site(Files(Path(data_dir)), Files(Path(out)), title=title)
+    """Write the report site (``index.html``, ``summary.json``) into ``out``.
+
+    ``default_view``: the view the page opens on: ``overview``, a platform
+    (``pypi``, ``npm``, ...), ``all``, ``projects`` or ``movers``.
+    """
+    s = build_site(
+        Files(Path(data_dir)),
+        Files(Path(out)),
+        title=title,
+        default_view=default_view,
+    )
     return {"out": out, "packages": len(s["packages"]), "as_of": s["as_of"]}
 
 

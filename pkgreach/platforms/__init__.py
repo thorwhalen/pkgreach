@@ -46,6 +46,7 @@ class Platform:
             current values only (the report shows ``headline`` metrics).
         headline: the metrics a snapshot platform's table and card show, the
             first one summed on the card.
+        unit: what the report calls this platform's packages (plural).
         preferred_series: download series to analyse, best first.
         ecosystem: the package ecosystem, as a purl type (``pypi``, ``npm``,
             ``cargo``), for dependents lookups; ``""`` for none.
@@ -62,6 +63,7 @@ class Platform:
     title: str = ""
     kind: Literal["daily", "snapshot"] = "daily"
     headline: tuple[str, ...] = ()
+    unit: str = "packages"
     preferred_series: tuple[str, ...] = ("all",)
     ecosystem: str = ""
     default_where: Mapping[str, Any] = field(default_factory=dict)
@@ -96,6 +98,7 @@ PLATFORMS: dict[str, Platform] = {
             title="GitHub",
             kind="snapshot",
             headline=("stars", "forks", "open_issues"),
+            unit="repositories",
             default_where={"fork": False, "archived": False},
             prune_unlisted=True,
         ),
