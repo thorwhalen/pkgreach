@@ -317,3 +317,16 @@ def test_named_packages_bypass_where_and_unlisted_are_pruned(tmp_path):
     )
     for t in ("packages", "metrics"):
         assert "b" not in {r["package"] for r in read_table(store, TABLES[t])}
+
+
+def test_pypi_package_unknown_to_pypistats_is_not_an_error():
+    from pkgreach.http import HttpError
+    from pkgreach.platforms import pypi
+
+    def http(url, **kw):
+        if "pypistats" in url:
+            raise HttpError(404, "Not Found", url=url)
+        return {"info": {"version": "0.1", "summary": "s"}, "releases": {"0.1": []}}
+
+    got = pypi.fetch({"package": "new-pkg"}, http=http, today=TODAY)
+    assert got["downloads"] == [] and got["info"]["latest_version"] == "0.1"
