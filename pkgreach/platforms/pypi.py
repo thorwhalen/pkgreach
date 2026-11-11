@@ -8,6 +8,9 @@
   pure noise. Older days are gone: hence a history kept weekly.
 - **Metadata**: ``pypi.org/pypi/{name}/json`` (latest version, summary, source
   repository, first upload, number of releases).
+
+A package pypistats does not know yet (published in the last day or two, or
+never downloaded) answers 404 there: that reads as no downloads, not an error.
 """
 
 from __future__ import annotations
@@ -16,6 +19,8 @@ import re
 import xmlrpc.client
 from collections.abc import Iterator
 from datetime import date
+
+from pkgreach.http import HttpError
 
 XMLRPC_URL = "https://pypi.org/pypi"
 STATS_URL = "https://pypistats.org/api/packages/{name}/overall"
@@ -50,7 +55,12 @@ def _repository(info: dict) -> str:
 def fetch(record: dict, *, http, today: date, since: date | None = None) -> dict:
     """Daily downloads (both series), versions, and metadata of one package."""
     name = record["package"]
-    stats = http(STATS_URL.format(name=name)).get("data", [])
+    try:
+        stats = http(STATS_URL.format(name=name)).get("data", [])
+    except HttpError as e:
+        if e.status != 404:
+            raise
+        stats = []  # pypistats has no row yet: a new or never-downloaded package
     lo = since.isoformat() if since else ""
     downloads = [
         {"date": r["date"], "series": SERIES[r["category"]], "count": r["downloads"]}
