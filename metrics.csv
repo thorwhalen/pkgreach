@@ -91,6 +91,7 @@ date,platform,package,metric,value
 2026-11-11,github,i2mint/embody,stars,0
 2026-11-11,github,i2mint/enlace,forks,0
 2026-11-11,github,i2mint/enlace,open_issues,14
+2026-11-15,github,i2mint/enlace,open_issues,15
 2026-11-11,github,i2mint/enlace,stars,0
 2026-11-11,github,i2mint/enlace_auth,forks,0
 2026-11-11,github,i2mint/enlace_auth,open_issues,8
@@ -169,6 +170,7 @@ date,platform,package,metric,value
 2026-11-11,github,i2mint/ij,stars,0
 2026-11-11,github,i2mint/ir,forks,0
 2026-11-11,github,i2mint/ir,open_issues,12
+2026-11-15,github,i2mint/ir,open_issues,14
 2026-11-11,github,i2mint/ir,stars,0
 2026-11-11,github,i2mint/isee,forks,0
 2026-11-11,github,i2mint/isee,open_issues,0
@@ -391,6 +393,7 @@ date,platform,package,metric,value
 2026-11-11,github,i2mint/videostream2py,stars,1
 2026-11-11,github,i2mint/wads,forks,1
 2026-11-11,github,i2mint/wads,open_issues,26
+2026-11-15,github,i2mint/wads,open_issues,27
 2026-11-11,github,i2mint/wads,stars,0
 2026-11-11,github,i2mint/wads_test,forks,0
 2026-11-11,github,i2mint/wads_test,open_issues,0
@@ -400,6 +403,7 @@ date,platform,package,metric,value
 2026-11-11,github,i2mint/xdol,stars,0
 2026-11-11,github,i2mint/zodal,forks,0
 2026-11-11,github,i2mint/zodal,open_issues,15
+2026-11-15,github,i2mint/zodal,open_issues,11
 2026-11-11,github,i2mint/zodal,stars,1
 2026-11-11,github,i2mint/zodal-dials,forks,0
 2026-11-11,github,i2mint/zodal-dials,open_issues,3
@@ -410,29 +414,42 @@ date,platform,package,metric,value
 2026-11-11,github,i2mint/zodal-groups,forks,0
 2026-11-11,github,i2mint/zodal-groups,open_issues,5
 2026-11-11,github,i2mint/zodal-groups,stars,0
+2026-11-15,github,i2mint/zodal-media,forks,0
+2026-11-15,github,i2mint/zodal-media,open_issues,3
+2026-11-15,github,i2mint/zodal-media,stars,0
 2026-11-11,github,i2mint/zodal-speech,forks,0
 2026-11-11,github,i2mint/zodal-speech,open_issues,1
 2026-11-11,github,i2mint/zodal-speech,stars,0
 2026-11-11,github,i2mint/zodal-store-fs,forks,0
 2026-11-11,github,i2mint/zodal-store-fs,open_issues,1
+2026-11-15,github,i2mint/zodal-store-fs,open_issues,2
 2026-11-11,github,i2mint/zodal-store-fs,stars,0
+2026-11-15,github,i2mint/zodal-store-github,forks,0
+2026-11-15,github,i2mint/zodal-store-github,open_issues,0
+2026-11-15,github,i2mint/zodal-store-github,stars,0
 2026-11-11,github,i2mint/zodal-store-http,forks,0
 2026-11-11,github,i2mint/zodal-store-http,open_issues,1
+2026-11-15,github,i2mint/zodal-store-http,open_issues,2
 2026-11-11,github,i2mint/zodal-store-http,stars,0
 2026-11-11,github,i2mint/zodal-store-localstorage,forks,0
 2026-11-11,github,i2mint/zodal-store-localstorage,open_issues,3
+2026-11-15,github,i2mint/zodal-store-localstorage,open_issues,2
 2026-11-11,github,i2mint/zodal-store-localstorage,stars,0
 2026-11-11,github,i2mint/zodal-store-s3,forks,0
 2026-11-11,github,i2mint/zodal-store-s3,open_issues,1
+2026-11-15,github,i2mint/zodal-store-s3,open_issues,2
 2026-11-11,github,i2mint/zodal-store-s3,stars,0
 2026-11-11,github,i2mint/zodal-store-supabase,forks,0
 2026-11-11,github,i2mint/zodal-store-supabase,open_issues,1
+2026-11-15,github,i2mint/zodal-store-supabase,open_issues,2
 2026-11-11,github,i2mint/zodal-store-supabase,stars,0
 2026-11-11,github,i2mint/zodal-ui-shadcn,forks,0
 2026-11-11,github,i2mint/zodal-ui-shadcn,open_issues,9
+2026-11-15,github,i2mint/zodal-ui-shadcn,open_issues,7
 2026-11-11,github,i2mint/zodal-ui-shadcn,stars,0
 2026-11-11,github,i2mint/zodal-ui-vanilla,forks,0
 2026-11-11,github,i2mint/zodal-ui-vanilla,open_issues,7
+2026-11-15,github,i2mint/zodal-ui-vanilla,open_issues,4
 2026-11-11,github,i2mint/zodal-ui-vanilla,stars,0
 2026-11-11,github,i2mint/zu,forks,1
 2026-11-11,github,i2mint/zu,open_issues,1
@@ -448,6 +465,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/accompy,stars,4
 2026-11-11,github,thorwhalen/acquaint,forks,0
 2026-11-11,github,thorwhalen/acquaint,open_issues,6
+2026-11-15,github,thorwhalen/acquaint,open_issues,9
 2026-11-11,github,thorwhalen/acquaint,stars,0
 2026-11-11,github,thorwhalen/agen,forks,1
 2026-11-11,github,thorwhalen/agen,open_issues,0
@@ -457,6 +475,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/aikb,stars,0
 2026-11-11,github,thorwhalen/aix,forks,0
 2026-11-11,github,thorwhalen/aix,open_issues,1
+2026-11-15,github,thorwhalen/aix,open_issues,2
 2026-11-11,github,thorwhalen/aix,stars,1
 2026-11-11,github,thorwhalen/allude,forks,0
 2026-11-11,github,thorwhalen/allude,open_issues,0
@@ -469,6 +488,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/anima,stars,0
 2026-11-11,github,thorwhalen/annals,forks,0
 2026-11-11,github,thorwhalen/annals,open_issues,10
+2026-11-15,github,thorwhalen/annals,open_issues,14
 2026-11-11,github,thorwhalen/annals,stars,0
 2026-11-11,github,thorwhalen/antescofo,forks,0
 2026-11-11,github,thorwhalen/antescofo,open_issues,0
@@ -484,6 +504,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/app_contaix,stars,0
 2026-11-11,github,thorwhalen/app_ef,forks,0
 2026-11-11,github,thorwhalen/app_ef,open_issues,0
+2026-11-15,github,thorwhalen/app_ef,open_issues,1
 2026-11-11,github,thorwhalen/app_ef,stars,0
 2026-11-11,github,thorwhalen/app_hired,forks,0
 2026-11-11,github,thorwhalen/app_hired,open_issues,0
@@ -493,6 +514,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/app_mood,stars,0
 2026-11-11,github,thorwhalen/arioso,forks,0
 2026-11-11,github,thorwhalen/arioso,open_issues,6
+2026-11-15,github,thorwhalen/arioso,open_issues,7
 2026-11-11,github,thorwhalen/arioso,stars,0
 2026-11-11,github,thorwhalen/article,forks,0
 2026-11-11,github,thorwhalen/article,open_issues,4
@@ -533,6 +555,9 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/bumph,forks,0
 2026-11-11,github,thorwhalen/bumph,open_issues,0
 2026-11-11,github,thorwhalen/bumph,stars,1
+2026-11-15,github,thorwhalen/byok,forks,0
+2026-11-15,github,thorwhalen/byok,open_issues,2
+2026-11-15,github,thorwhalen/byok,stars,0
 2026-11-11,github,thorwhalen/chess_puzzles,forks,0
 2026-11-11,github,thorwhalen/chess_puzzles,open_issues,1
 2026-11-11,github,thorwhalen/chess_puzzles,stars,0
@@ -541,9 +566,11 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/chordsym,stars,0
 2026-11-11,github,thorwhalen/citeget,forks,0
 2026-11-11,github,thorwhalen/citeget,open_issues,2
+2026-11-15,github,thorwhalen/citeget,open_issues,3
 2026-11-11,github,thorwhalen/citeget,stars,0
 2026-11-11,github,thorwhalen/coact,forks,0
 2026-11-11,github,thorwhalen/coact,open_issues,2
+2026-11-15,github,thorwhalen/coact,open_issues,3
 2026-11-11,github,thorwhalen/coact,stars,0
 2026-11-11,github,thorwhalen/codify,forks,0
 2026-11-11,github,thorwhalen/codify,open_issues,0
@@ -568,6 +595,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/creel,stars,0
 2026-11-11,github,thorwhalen/crowsnest,forks,0
 2026-11-11,github,thorwhalen/crowsnest,open_issues,15
+2026-11-15,github,thorwhalen/crowsnest,open_issues,17
 2026-11-11,github,thorwhalen/crowsnest,stars,0
 2026-11-11,github,thorwhalen/cryptology,forks,0
 2026-11-11,github,thorwhalen/cryptology,open_issues,1
@@ -583,6 +611,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/denote,stars,0
 2026-11-11,github,thorwhalen/dn,forks,0
 2026-11-11,github,thorwhalen/dn,open_issues,0
+2026-11-15,github,thorwhalen/dn,open_issues,1
 2026-11-11,github,thorwhalen/dn,stars,0
 2026-11-11,github,thorwhalen/drug_lifecourse,forks,0
 2026-11-11,github,thorwhalen/drug_lifecourse,open_issues,0
@@ -604,6 +633,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/equate,stars,1
 2026-11-11,github,thorwhalen/equerry,forks,0
 2026-11-11,github,thorwhalen/equerry,open_issues,8
+2026-11-15,github,thorwhalen/equerry,open_issues,10
 2026-11-11,github,thorwhalen/equerry,stars,0
 2026-11-11,github,thorwhalen/essays,forks,0
 2026-11-11,github,thorwhalen/essays,open_issues,12
@@ -695,6 +725,9 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/i2i,forks,0
 2026-11-11,github,thorwhalen/i2i,open_issues,0
 2026-11-11,github,thorwhalen/i2i,stars,1
+2026-11-15,github,thorwhalen/ideadump,forks,0
+2026-11-15,github,thorwhalen/ideadump,open_issues,2
+2026-11-15,github,thorwhalen/ideadump,stars,0
 2026-11-11,github,thorwhalen/ideas,forks,0
 2026-11-11,github,thorwhalen/ideas,open_issues,2
 2026-11-11,github,thorwhalen/ideas,stars,0
@@ -817,6 +850,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/oldpy2store,stars,1
 2026-11-11,github,thorwhalen/openloops,forks,0
 2026-11-11,github,thorwhalen/openloops,open_issues,7
+2026-11-15,github,thorwhalen/openloops,open_issues,8
 2026-11-11,github,thorwhalen/openloops,stars,0
 2026-11-11,github,thorwhalen/opsward,forks,0
 2026-11-11,github,thorwhalen/opsward,open_issues,9
@@ -853,6 +887,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/pipoke,stars,1
 2026-11-11,github,thorwhalen/pkgreach,forks,0
 2026-11-11,github,thorwhalen/pkgreach,open_issues,0
+2026-11-15,github,thorwhalen/pkgreach,open_issues,1
 2026-11-11,github,thorwhalen/pkgreach,stars,0
 2026-11-11,github,thorwhalen/plunk,forks,0
 2026-11-11,github,thorwhalen/plunk,open_issues,0
@@ -878,6 +913,9 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/py2request,forks,0
 2026-11-11,github,thorwhalen/py2request,open_issues,0
 2026-11-11,github,thorwhalen/py2request,stars,0
+2026-11-15,github,thorwhalen/pyfiddle,forks,0
+2026-11-15,github,thorwhalen/pyfiddle,open_issues,1
+2026-11-15,github,thorwhalen/pyfiddle,stars,0
 2026-11-11,github,thorwhalen/pynch,forks,0
 2026-11-11,github,thorwhalen/pynch,open_issues,0
 2026-11-11,github,thorwhalen/pynch,stars,1
@@ -920,6 +958,9 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/sheet,forks,0
 2026-11-11,github,thorwhalen/sheet,open_issues,0
 2026-11-11,github,thorwhalen/sheet,stars,1
+2026-11-15,github,thorwhalen/sigilsmith,forks,0
+2026-11-15,github,thorwhalen/sigilsmith,open_issues,0
+2026-11-15,github,thorwhalen/sigilsmith,stars,0
 2026-11-11,github,thorwhalen/skill,forks,0
 2026-11-11,github,thorwhalen/skill,open_issues,3
 2026-11-11,github,thorwhalen/skill,stars,1
@@ -937,6 +978,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/spyn,stars,3
 2026-11-11,github,thorwhalen/srtplay,forks,0
 2026-11-11,github,thorwhalen/srtplay,open_issues,0
+2026-11-15,github,thorwhalen/srtplay,open_issues,1
 2026-11-11,github,thorwhalen/srtplay,stars,0
 2026-11-11,github,thorwhalen/streamlit_apps,forks,0
 2026-11-11,github,thorwhalen/streamlit_apps,open_issues,0
@@ -1006,6 +1048,7 @@ date,platform,package,metric,value
 2026-11-11,github,thorwhalen/viral,stars,2
 2026-11-11,github,thorwhalen/voxy,forks,0
 2026-11-11,github,thorwhalen/voxy,open_issues,10
+2026-11-15,github,thorwhalen/voxy,open_issues,11
 2026-11-11,github,thorwhalen/voxy,stars,0
 2026-11-11,github,thorwhalen/wary,forks,0
 2026-11-11,github,thorwhalen/wary,open_issues,0
@@ -1043,6 +1086,8 @@ date,platform,package,metric,value
 2026-11-11,npm,@zodal/groups-ui,dependent_repos,0
 2026-11-11,npm,@zodal/groups-ui-vanilla,dependent_packages,0
 2026-11-11,npm,@zodal/groups-ui-vanilla,dependent_repos,0
+2026-11-15,npm,@zodal/speech,dependent_packages,0
+2026-11-15,npm,@zodal/speech,dependent_repos,0
 2026-11-11,npm,@zodal/store,dependent_packages,0
 2026-11-11,npm,@zodal/store,dependent_repos,0
 2026-11-11,npm,@zodal/store-fs,dependent_packages,0
@@ -1149,9 +1194,11 @@ date,platform,package,metric,value
 2026-11-11,pypi,an,dependent_packages,0
 2026-11-11,pypi,an,dependent_repos,20
 2026-11-11,pypi,an,versions,406
+2026-11-15,pypi,an,versions,407
 2026-11-11,pypi,annals,dependent_packages,0
 2026-11-11,pypi,annals,dependent_repos,0
 2026-11-11,pypi,annals,versions,39
+2026-11-15,pypi,annals,versions,44
 2026-11-11,pypi,antescofo,dependent_packages,0
 2026-11-11,pypi,antescofo,dependent_repos,0
 2026-11-11,pypi,antescofo,versions,3
@@ -1161,6 +1208,7 @@ date,platform,package,metric,value
 2026-11-11,pypi,arioso,dependent_packages,0
 2026-11-11,pypi,arioso,dependent_repos,0
 2026-11-11,pypi,arioso,versions,52
+2026-11-15,pypi,arioso,versions,54
 2026-11-11,pypi,artful,dependent_packages,0
 2026-11-11,pypi,artful,dependent_repos,0
 2026-11-11,pypi,artful,versions,18
@@ -1212,6 +1260,7 @@ date,platform,package,metric,value
 2026-11-11,pypi,braidio,dependent_packages,0
 2026-11-11,pypi,braidio,dependent_repos,0
 2026-11-11,pypi,braidio,versions,123
+2026-11-15,pypi,braidio,versions,124
 2026-11-11,pypi,brand,dependent_packages,0
 2026-11-11,pypi,brand,dependent_repos,4
 2026-11-11,pypi,brand,versions,24
@@ -1278,6 +1327,7 @@ date,platform,package,metric,value
 2026-11-11,pypi,crowsnest,dependent_packages,0
 2026-11-11,pypi,crowsnest,dependent_repos,0
 2026-11-11,pypi,crowsnest,versions,109
+2026-11-15,pypi,crowsnest,versions,111
 2026-11-11,pypi,csvledger,dependent_packages,0
 2026-11-11,pypi,csvledger,dependent_repos,0
 2026-11-11,pypi,csvledger,versions,1
@@ -1287,6 +1337,7 @@ date,platform,package,metric,value
 2026-11-11,pypi,cutan,dependent_packages,0
 2026-11-11,pypi,cutan,dependent_repos,0
 2026-11-11,pypi,cutan,versions,117
+2026-11-15,pypi,cutan,versions,118
 2026-11-11,pypi,cw,dependent_packages,0
 2026-11-11,pypi,cw,dependent_repos,2
 2026-11-11,pypi,cw,versions,28
@@ -1311,6 +1362,7 @@ date,platform,package,metric,value
 2026-11-11,pypi,dn,dependent_packages,1
 2026-11-11,pypi,dn,dependent_repos,1
 2026-11-11,pypi,dn,versions,15
+2026-11-15,pypi,dn,versions,16
 2026-11-11,pypi,dol,dependent_packages,26
 2026-11-11,pypi,dol,dependent_repos,5
 2026-11-11,pypi,dol,versions,375
@@ -1350,6 +1402,7 @@ date,platform,package,metric,value
 2026-11-11,pypi,enlace-auth,dependent_packages,0
 2026-11-11,pypi,enlace-auth,dependent_repos,0
 2026-11-11,pypi,enlace-auth,versions,53
+2026-11-15,pypi,enlace-auth,versions,54
 2026-11-11,pypi,enlace-docker,dependent_packages,0
 2026-11-11,pypi,enlace-docker,dependent_repos,0
 2026-11-11,pypi,enlace-docker,versions,9
@@ -1404,6 +1457,7 @@ date,platform,package,metric,value
 2026-11-11,pypi,ge,dependent_packages,0
 2026-11-11,pypi,ge,dependent_repos,3
 2026-11-11,pypi,ge,versions,24
+2026-11-15,pypi,ge,versions,25
 2026-11-11,pypi,ghir,versions,2
 2026-11-11,pypi,ghtraffic,dependent_packages,0
 2026-11-11,pypi,ghtraffic,dependent_repos,0
@@ -1442,6 +1496,7 @@ date,platform,package,metric,value
 2026-11-11,pypi,hedger,dependent_packages,0
 2026-11-11,pypi,hedger,dependent_repos,1
 2026-11-11,pypi,hedger,versions,20
+2026-11-15,pypi,hedger,versions,21
 2026-11-11,pypi,hfdol,dependent_packages,0
 2026-11-11,pypi,hfdol,dependent_repos,0
 2026-11-11,pypi,hfdol,versions,7
@@ -1472,6 +1527,9 @@ date,platform,package,metric,value
 2026-11-11,pypi,i2i,dependent_packages,0
 2026-11-11,pypi,i2i,dependent_repos,1
 2026-11-11,pypi,i2i,versions,1
+2026-11-15,pypi,ideadump,dependent_packages,0
+2026-11-15,pypi,ideadump,dependent_repos,0
+2026-11-15,pypi,ideadump,versions,1
 2026-11-11,pypi,idiom,dependent_packages,1
 2026-11-11,pypi,idiom,dependent_repos,1
 2026-11-11,pypi,idiom,versions,11
@@ -1528,6 +1586,7 @@ date,platform,package,metric,value
 2026-11-11,pypi,lacing,dependent_packages,0
 2026-11-11,pypi,lacing,dependent_repos,0
 2026-11-11,pypi,lacing,versions,107
+2026-11-15,pypi,lacing,versions,108
 2026-11-11,pypi,lag,dependent_packages,0
 2026-11-11,pypi,lag,dependent_repos,2
 2026-11-11,pypi,lag,versions,4
@@ -1639,6 +1698,7 @@ date,platform,package,metric,value
 2026-11-11,pypi,openloops,dependent_packages,0
 2026-11-11,pypi,openloops,dependent_repos,0
 2026-11-11,pypi,openloops,versions,30
+2026-11-15,pypi,openloops,versions,32
 2026-11-11,pypi,oplot,dependent_packages,1
 2026-11-11,pypi,oplot,dependent_repos,1
 2026-11-11,pypi,oplot,versions,34
@@ -1678,6 +1738,7 @@ date,platform,package,metric,value
 2026-11-11,pypi,pdfdol,dependent_packages,0
 2026-11-11,pypi,pdfdol,dependent_repos,0
 2026-11-11,pypi,pdfdol,versions,31
+2026-11-15,pypi,pdfdol,versions,32
 2026-11-11,pypi,penlike,dependent_packages,0
 2026-11-11,pypi,penlike,dependent_repos,0
 2026-11-11,pypi,penlike,versions,6
@@ -1742,6 +1803,7 @@ date,platform,package,metric,value
 2026-11-11,pypi,qh,dependent_packages,0
 2026-11-11,pypi,qh,dependent_repos,1
 2026-11-11,pypi,qh,versions,23
+2026-11-15,pypi,qh,versions,24
 2026-11-11,pypi,qo,dependent_packages,0
 2026-11-11,pypi,qo,dependent_repos,1
 2026-11-11,pypi,qo,versions,19
@@ -1952,6 +2014,7 @@ date,platform,package,metric,value
 2026-11-11,pypi,xa,dependent_packages,0
 2026-11-11,pypi,xa,dependent_repos,1
 2026-11-11,pypi,xa,versions,18
+2026-11-15,pypi,xa,versions,19
 2026-11-11,pypi,xcosmo,dependent_packages,0
 2026-11-11,pypi,xcosmo,dependent_repos,0
 2026-11-11,pypi,xcosmo,versions,1
