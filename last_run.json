@@ -1,12 +1,12 @@
 {
-  "started_at": "2026-11-15T05:27:21+00:00",
-  "duration_s": 498.2,
+  "started_at": "2026-11-22T05:27:44+00:00",
+  "duration_s": 512.8,
   "packages": {
-    "pypi": 288,
-    "npm": 70,
-    "crates": 0,
-    "github": 350
+    "pypi": 291,
+    "npm": 73,
+    "crates": 2,
+    "github": 326
   },
   "errors": {},
-  "files_changed": 4
+  "files_changed": 6
 }
